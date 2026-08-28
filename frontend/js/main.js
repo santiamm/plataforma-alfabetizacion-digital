@@ -126,3 +126,88 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+// -------------------------------------------------------------
+    // 5. Accesibilidad: Aumentar / Disminuir tamaño de fuente
+    // -------------------------------------------------------------
+    const btnAumentar = document.getElementById('btnAumentarTexto');
+    const btnDisminuir = document.getElementById('btnDisminuirTexto');
+    const contenedorTexto = document.getElementById('contenidoLeccion');
+
+    if (btnAumentar && btnDisminuir && contenedorTexto) {
+        let nivelZoom = 1.0; // Escala base 100%
+
+        btnAumentar.addEventListener('click', () => {
+            if (nivelZoom < 1.35) {
+                nivelZoom += 0.1;
+                aplicarEscalaTexto();
+            }
+        });
+
+        btnDisminuir.addEventListener('click', () => {
+            if (nivelZoom > 0.9) {
+                nivelZoom -= 0.1;
+                aplicarEscalaTexto();
+            }
+        });
+
+        function aplicarEscalaTexto() {
+            // Selecciona todos los textos dentro de la lección
+            const elementosTexto = contenedorTexto.querySelectorAll('h1, h2, h3, h4, p, li, strong, span');
+            elementosTexto.forEach(el => {
+                // Si no tiene guardado su tamaño original, lo guardamos
+                if (!el.dataset.baseSize) {
+                    const estilo = window.getComputedStyle(el);
+                    el.dataset.baseSize = parseFloat(estilo.fontSize);
+                }
+                const tamanoOriginal = parseFloat(el.dataset.baseSize);
+                el.style.fontSize = `${tamanoOriginal * nivelZoom}px`;
+            });
+        }
+    }
+
+    // -------------------------------------------------------------
+    // 6. Lógica interactiva de Ejercicios y Retroalimentación
+    // -------------------------------------------------------------
+    const botonesOpcion = document.querySelectorAll('.opcion-btn');
+    const cajaRetro = document.getElementById('cajaRetroalimentacion');
+    const tituloRetro = document.getElementById('tituloRetro');
+    const mensajeRetro = document.getElementById('mensajeRetro');
+    const iconoRetro = document.getElementById('iconoRetro');
+    const botonesFinal = document.getElementById('botonesAccionFinal');
+
+    if (botonesOpcion.length > 0 && cajaRetro) {
+        botonesOpcion.forEach(boton => {
+            boton.addEventListener('click', () => {
+                const esCorrecta = boton.getAttribute('data-correcta') === 'true';
+
+                // Deshabilitar las opciones para evitar múltiples clics
+                botonesOpcion.forEach(b => b.classList.add('disabled'));
+
+                cajaRetro.classList.remove('d-none', 'alert-success', 'alert-danger', 'bg-success-subtle', 'bg-danger-subtle', 'text-success-emphasis', 'text-danger-emphasis');
+
+                if (esCorrecta) {
+                    boton.classList.remove('btn-outline-primary');
+                    boton.classList.add('btn-success');
+
+                    cajaRetro.classList.add('bg-success-subtle', 'text-success-emphasis', 'border', 'border-success');
+                    iconoRetro.className = 'bi bi-check-circle-fill text-success fs-1 me-3';
+                    tituloRetro.textContent = '¡Excelente! Respuesta Correcta';
+                    mensajeRetro.textContent = 'El botón izquierdo es el principal y se utiliza para seleccionar elementos, abrir archivos y pulsar botones.';
+                } else {
+                    boton.classList.remove('btn-outline-primary');
+                    boton.classList.add('btn-danger');
+
+                    cajaRetro.classList.add('bg-danger-subtle', 'text-danger-emphasis', 'border', 'border-danger');
+                    iconoRetro.className = 'bi bi-exclamation-triangle-fill text-danger fs-1 me-3';
+                    tituloRetro.textContent = '¡Casi lo logras! Vamos a repasar';
+                    mensajeRetro.textContent = 'Recuerda que el botón principal es el izquierdo. El derecho se usa para ver listas de opciones.';
+                }
+
+                // Mostrar el botón de avance final
+                if (botonesFinal) {
+                    botonesFinal.classList.remove('d-none');
+                }
+            });
+        });
+    }
