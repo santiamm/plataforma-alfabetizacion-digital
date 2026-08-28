@@ -1,0 +1,20 @@
+/* Variables y ajustes generales de accesibilidad */
+body {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: #212529;
+}
+
+/* Enfoque accesible en botones y enlaces */
+a:focus, button:focus, .btn:focus {
+    outline: 3px solid #ffbf47 !important;
+    outline-offset: 2px;
+}
+
+/* Botones principales de gran tamaño */
+.btn-lg {
+    min-height: 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
