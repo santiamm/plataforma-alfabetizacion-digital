@@ -110,5 +110,27 @@ def obtener_progreso():
         
     return jsonify(lista_progreso), 200
 
+
+@app.route('/perfil', methods=['GET'])
+@jwt_required()
+def obtener_perfil():
+    usuario_id_actual = get_jwt_identity()
+    usuario = Usuario.query.get(int(usuario_id_actual))
+    
+    progresos = Progreso.query.filter_by(usuario_id=usuario.id, completado=True).all()
+    puntos_totales = 0
+    
+    for p in progresos:
+        estudio = Estudio.query.get(p.estudio_id)
+        if estudio:
+            puntos_totales += estudio.puntos_recompensa
+            
+    return jsonify({
+        "nombre": usuario.nombre,
+        "telefono": usuario.telefono,
+        "puntos_totales": puntos_totales
+    }), 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)
