@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -72,6 +74,24 @@ def obtener_estudios():
         })
         
     return jsonify(lista_estudios), 200
+
+
+@app.route('/progreso', methods=['POST'])
+@jwt_required()
+def registrar_progreso():
+    usuario_id_actual = get_jwt_identity()
+    datos = request.get_json()
+    
+    nuevo_progreso = Progreso(
+        usuario_id=int(usuario_id_actual),
+        estudio_id=datos['estudio_id'],
+        completado=True
+    )
+    
+    db.session.add(nuevo_progreso)
+    db.session.commit()
+    
+    return jsonify({"mensaje": "Progreso registrado con exito"}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
