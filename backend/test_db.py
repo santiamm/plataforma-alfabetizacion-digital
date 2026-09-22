@@ -44,7 +44,6 @@ def test_registrar_progreso():
         
         assert Progreso.query.first().completado == True
 
-
 def test_registro_usuario():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
     app.config['TESTING'] = True
@@ -62,3 +61,27 @@ def test_registro_usuario():
         
         assert respuesta.status_code == 201
         assert b"Usuario registrado con exito" in respuesta.data
+
+def test_registro_usuario_duplicado():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
+    app.config['TESTING'] = True
+    cliente = app.test_client()
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+        cliente.post('/registro', json={
+            "nombre": "Don Jose",
+            "telefono": "3120000000",
+            "password": "123"
+        })
+        
+        respuesta_duplicada = cliente.post('/registro', json={
+            "nombre": "Dona Maria",
+            "telefono": "3120000000",
+            "password": "456"
+        })
+        
+        assert respuesta_duplicada.status_code == 400
+        assert b"El telefono ya esta registrado" in respuesta_duplicada.data

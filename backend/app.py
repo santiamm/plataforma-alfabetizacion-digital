@@ -9,7 +9,7 @@ db = SQLAlchemy(app)
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
-    telefono = db.Column(db.String(15), nullable=False)
+    telefono = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False, default="")
 
     def set_password(self, password_texto_plano):
@@ -33,6 +33,11 @@ class Progreso(db.Model):
 @app.route('/registro', methods=['POST'])
 def registro():
     datos = request.get_json()
+    
+    usuario_existente = Usuario.query.filter_by(telefono=datos['telefono']).first()
+    if usuario_existente:
+        return jsonify({"error": "El telefono ya esta registrado"}), 400
+
     nuevo_usuario = Usuario(nombre=datos['nombre'], telefono=datos['telefono'])
     nuevo_usuario.set_password(datos['password'])
     db.session.add(nuevo_usuario)
