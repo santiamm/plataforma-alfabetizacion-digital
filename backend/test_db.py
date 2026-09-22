@@ -43,3 +43,22 @@ def test_registrar_progreso():
         db.session.commit()
         
         assert Progreso.query.first().completado == True
+
+
+def test_registro_usuario():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
+    app.config['TESTING'] = True
+    cliente = app.test_client()
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+        respuesta = cliente.post('/registro', json={
+            "nombre": "Don Jose",
+            "telefono": "3120000000",
+            "password": "mypassword"
+        })
+        
+        assert respuesta.status_code == 201
+        assert b"Usuario registrado con exito" in respuesta.data
