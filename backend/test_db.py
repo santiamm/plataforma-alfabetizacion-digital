@@ -85,3 +85,26 @@ def test_registro_usuario_duplicado():
         
         assert respuesta_duplicada.status_code == 400
         assert b"El telefono ya esta registrado" in respuesta_duplicada.data
+
+
+def test_login_usuario():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
+    app.config['TESTING'] = True
+    cliente = app.test_client()
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        
+        nuevo_usuario = Usuario(nombre="Don Jose", telefono="3120000000")
+        nuevo_usuario.set_password("mypassword")
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        respuesta_correcta = cliente.post('/login', json={
+            "telefono": "3120000000",
+            "password": "mypassword"
+        })
+        
+        assert respuesta_correcta.status_code == 200
+        assert b"Login exitoso" in respuesta_correcta.data
