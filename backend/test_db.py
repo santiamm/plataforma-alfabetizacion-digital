@@ -107,7 +107,8 @@ def test_login_usuario():
         })
         
         assert respuesta_correcta.status_code == 200
-        assert b"Login exitoso" in respuesta_correcta.data
+        datos = respuesta_correcta.get_json()
+        assert "access_token" in datos
 
 
 

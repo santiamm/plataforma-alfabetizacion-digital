@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, create_access_token
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['JWT_SECRET_KEY'] = 'clave_secreta_super_segura_123'
 db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,10 +53,10 @@ def login():
     usuario = Usuario.query.filter_by(telefono=datos['telefono']).first()
     
     if usuario and usuario.check_password(datos['password']):
-        return jsonify({"mensaje": "Login exitoso"}), 200
+        token_acceso = create_access_token(identity=str(usuario.id))
+        return jsonify({"mensaje": "Login exitoso", "access_token": token_acceso}), 200
         
     return jsonify({"error": "Credenciales invalidas"}), 401
-
 
 @app.route('/estudios', methods=['GET'])
 def obtener_estudios():
