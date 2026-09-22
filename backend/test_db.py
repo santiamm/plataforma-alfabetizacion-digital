@@ -108,3 +108,23 @@ def test_login_usuario():
         
         assert respuesta_correcta.status_code == 200
         assert b"Login exitoso" in respuesta_correcta.data
+
+
+
+def test_obtener_estudios():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
+    app.config['TESTING'] = True
+    cliente = app.test_client()
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        
+        nuevo_estudio = Estudio(titulo="Modulo 1", descripcion="Prueba", puntos_recompensa=10)
+        db.session.add(nuevo_estudio)
+        db.session.commit()
+
+        respuesta = cliente.get('/estudios')
+        
+        assert respuesta.status_code == 200
+        assert b"Modulo 1" in respuesta.data

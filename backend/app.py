@@ -54,5 +54,21 @@ def login():
         
     return jsonify({"error": "Credenciales invalidas"}), 401
 
+
+@app.route('/estudios', methods=['GET'])
+def obtener_estudios():
+    estudios = Estudio.query.all()
+    lista_estudios = []
+    
+    for estudio in estudios:
+        lista_estudios.append({
+            "id": estudio.id,
+            "titulo": estudio.titulo,
+            "descripcion": estudio.descripcion,
+            "puntos_recompensa": estudio.puntos_recompensa
+        })
+        
+    return jsonify(lista_estudios), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
