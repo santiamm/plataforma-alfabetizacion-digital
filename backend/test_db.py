@@ -161,3 +161,37 @@ def test_registrar_progreso_con_token():
         
         assert respuesta_progreso.status_code == 201
         assert b"Progreso registrado" in respuesta_progreso.data
+        
+
+def test_obtener_progreso_con_token():
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' 
+    app.config['TESTING'] = True
+    cliente = app.test_client()
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        
+        nuevo_estudio = Estudio(titulo="Modulo 1", descripcion="Prueba", puntos_recompensa=10)
+        db.session.add(nuevo_estudio)
+        
+        nuevo_usuario = Usuario(nombre="Don Jose", telefono="3120000000")
+        nuevo_usuario.set_password("mypassword")
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        respuesta_login = cliente.post('/login', json={
+            "telefono": "3120000000",
+            "password": "mypassword"
+        })
+        token = respuesta_login.get_json()["access_token"]
+
+        cliente.post('/progreso', 
+            json={"estudio_id": 1},
+            headers={"Authorization": f"Bearer {token}"}
+        )
+
+        respuesta_obtener = cliente.get('/progreso', headers={"Authorization": f"Bearer {token}"})
+        
+        assert respuesta_obtener.status_code == 200
+        assert b"estudio_id" in respuesta_obtener.data

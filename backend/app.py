@@ -93,5 +93,22 @@ def registrar_progreso():
     
     return jsonify({"mensaje": "Progreso registrado con exito"}), 201
 
+
+@app.route('/progreso', methods=['GET'])
+@jwt_required()
+def obtener_progreso():
+    usuario_id_actual = get_jwt_identity()
+    progresos = Progreso.query.filter_by(usuario_id=int(usuario_id_actual)).all()
+    
+    lista_progreso = []
+    for p in progresos:
+        lista_progreso.append({
+            "id": p.id,
+            "estudio_id": p.estudio_id,
+            "completado": p.completado
+        })
+        
+    return jsonify(lista_progreso), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
