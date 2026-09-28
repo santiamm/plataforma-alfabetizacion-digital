@@ -222,3 +222,8 @@ venv/
 instance/
 __pycache__/
 .pytest_cache/
+
+# Entorno y BD
+.env
+backend/database.db
+backend/instance/
