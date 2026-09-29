@@ -17,11 +17,11 @@
     <!-- Encabezado con retorno a la Lección -->
     <header class="bg-white border-bottom py-3">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="leccion.html" class="btn btn-outline-primary btn-lg fs-5">
+            <a href="leccion.html" id="btnVolverLeccion" class="btn btn-outline-primary btn-lg fs-5">
                 <i class="bi bi-arrow-left me-1"></i> Volver a la Explicación
             </a>
-            <span class="fs-4 text-secondary d-none d-md-inline fw-semibold">
-                <i class="bi bi-pencil-square text-success me-1"></i> Práctica del Módulo 1
+            <span class="fs-4 text-secondary d-none d-md-inline fw-semibold" id="textoEncabezado">
+                <i class="bi bi-pencil-square text-success me-1"></i> Práctica del Módulo
             </span>
         </div>
     </header>
@@ -35,37 +35,25 @@
                     
                     <!-- Indicador de pregunta -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">Ejercicio 1 de 1</span>
+                        <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="badgePregunta">Módulo 1 • Ejercicio Práctico</span>
                         <span class="text-muted fs-6">Pregunta de opción múltiple</span>
                     </div>
 
                     <!-- Enunciado de la Pregunta -->
                     <h1 class="h2 fw-bold text-dark mb-4" id="enunciadoPregunta">
-                        ¿Cuál botón del ratón (mouse) utilizas principalmente para seleccionar cosas y pulsar botones en la pantalla?
+                        Cargando pregunta...
                     </h1>
 
                     <p class="fs-5 text-muted mb-4">
                         Haz clic sobre la opción que consideres correcta:
                     </p>
 
-                    <!-- Lista de Opciones -->
+                    <!-- Lista Dinámica de Opciones -->
                     <div class="d-grid gap-3" id="contenedorOpciones">
-                        
-                        <button class="btn btn-outline-primary btn-lg py-3 px-4 fs-5 text-start rounded-4 opcion-btn" data-correcta="true">
-                            <span class="fw-bold me-2">A.</span> El botón izquierdo (con el dedo índice).
-                        </button>
-
-                        <button class="btn btn-outline-primary btn-lg py-3 px-4 fs-5 text-start rounded-4 opcion-btn" data-correcta="false">
-                            <span class="fw-bold me-2">B.</span> El botón derecho (con el dedo medio).
-                        </button>
-
-                        <button class="btn btn-outline-primary btn-lg py-3 px-4 fs-5 text-start rounded-4 opcion-btn" data-correcta="false">
-                            <span class="fw-bold me-2">C.</span> La tecla de la barra espaciadora.
-                        </button>
-
+                        <!-- Se insertan dinámicamente según el módulo -->
                     </div>
 
-                    <!-- Cuadro de Retroalimentación (oculto por defecto) -->
+                    <!-- Cuadro de Retroalimentación -->
                     <div id="cajaRetroalimentacion" class="mt-4 p-4 rounded-4 d-none">
                         <div class="d-flex align-items-start">
                             <i id="iconoRetro" class="fs-1 me-3"></i>
@@ -76,8 +64,8 @@
                         </div>
                     </div>
 
-                    <!-- Botones de Navegación Final (oculto hasta responder) -->
-                    <div id="botonesAccionFinal" class="mt-4 pt-3 border-top d-none d-flex justify-content-end">
+                    <!-- Botones de Navegación Final -->
+                    <div id="botonesAccionFinal" class="mt-4 pt-3 border-top d-none justify-content-end">
                         <a href="dashboard.html" class="btn btn-primary btn-lg py-3 px-5 fs-4 fw-semibold rounded-pill shadow-sm">
                             <i class="bi bi-check-all me-2"></i> Completar y Volver al Panel
                         </a>
@@ -98,6 +86,191 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
-</body>
-</html>
+
+   <!-- LÓGICA INTERACTIVA Y CONEXIÓN CON FLASK / SQLITE -->
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_URL = 'http://127.0.0.1:5000';
+        const token = localStorage.getItem('token');
+
+        // 1. Obtener ID del módulo actual
+        const params = new URLSearchParams(window.location.search);
+        const moduloId = parseInt(params.get('id')) || 1;
+
+        // Enlace de retorno
+        const btnVolver = document.getElementById('btnVolverLeccion');
+        if (btnVolver) {
+            btnVolver.href = `leccion.html?id=${moduloId}`;
+        }
+
+        const textoEncabezado = document.getElementById('textoEncabezado');
+        if (textoEncabezado) {
+            textoEncabezado.innerHTML = `<i class="bi bi-pencil-square text-success me-1"></i> Práctica del Módulo ${moduloId}`;
+        }
+
+        // 2. Banco de preguntas pedagógicas (1 a 7)
+        const preguntasPorModulo = {
+            1: {
+                enunciado: '¿Cuál botón del ratón (mouse) utilizas principalmente para seleccionar cosas y pulsar botones en la pantalla?',
+                opciones: [
+                    { letra: 'A', texto: 'El botón izquierdo (con el dedo índice).', correcta: true },
+                    { letra: 'B', texto: 'El botón derecho (con el dedo medio).', correcta: false },
+                    { letra: 'C', texto: 'La tecla de la barra espaciadora.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Excelente! El botón izquierdo es el principal y sirve para interactuar, seleccionar y confirmar.',
+                explicacionError: 'Recuerda que el botón izquierdo (dedo índice) es el principal. El derecho se usa para opciones secundarias.'
+            },
+            2: {
+                enunciado: 'Para buscar información en internet sobre recetas o noticias, ¿dónde debes escribir lo que buscas?',
+                opciones: [
+                    { letra: 'A', texto: 'En la papelera de reciclaje de la computadora.', correcta: false },
+                    { letra: 'B', texto: 'En la barra de búsqueda de tu navegador web.', correcta: true },
+                    { letra: 'C', texto: 'En la calculadora del computador.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Muy bien! En la barra de búsqueda del navegador puedes escribir palabras clave y presionar ENTER.',
+                explicacionError: 'La búsqueda de información se hace dentro del navegador web (como Chrome o Edge) en su barra de búsqueda.'
+            },
+            3: {
+                enunciado: 'Si recibes una llamada o mensaje diciendo que ganaste un premio y te piden tu contraseña bancaria, ¿qué debes hacer?',
+                opciones: [
+                    { letra: 'A', texto: 'Entregar la contraseña rápido para no perder el premio.', correcta: false },
+                    { letra: 'B', texto: 'Desconfiar, no dar ningún dato y colgar de inmediato.', correcta: true },
+                    { letra: 'C', texto: 'Escribir la contraseña en un mensaje de texto.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Perfecto! Ningún banco ni entidad confiable te pedirá contraseñas personales. Nunca las compartas.',
+                explicacionError: 'Nunca debes compartir tus claves. Las entidades reales jamás te pedirán contraseñas por llamada o mensaje.'
+            },
+            4: {
+                enunciado: 'Al momento de solicitar una cita médica o consultar un certificado en línea, ¿qué dato básico debes tener siempre a la mano?',
+                opciones: [
+                    { letra: 'A', texto: 'Tu documento de identidad (cédula) y un teléfono de contacto.', correcta: true },
+                    { letra: 'B', texto: 'El recibo de la luz del mes pasado.', correcta: false },
+                    { letra: 'C', texto: 'El correo electrónico de un vecino.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Correcto! Tu documento de identidad es la llave para consultar turnos, trámites y citas en portales oficiales.',
+                explicacionError: 'Para trámites oficiales lo esencial es tu documento de identificación personal y tu propio contacto.'
+            },
+            5: {
+                enunciado: '¿Cómo puedes enviar un mensaje de voz a un familiar por WhatsApp?',
+                opciones: [
+                    { letra: 'A', texto: 'Apagando el celular y volviéndolo a encender.', correcta: false },
+                    { letra: 'B', texto: 'Manteniendo presionado el icono del micrófono mientras hablas.', correcta: true },
+                    { letra: 'C', texto: 'Pulsando tres veces la pantalla con dos dedos.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Así es! Mantienes presionado el botón del micrófono verde, hablas tu mensaje y al soltarlo se envía.',
+                explicacionError: 'Para grabar una nota de voz debes mantener pulsado el icono del micrófono que aparece junto al teclado.'
+            },
+            6: {
+                enunciado: 'Por tu seguridad financiera, ¿dónde NO deberías ingresar a revisar tus cuentas bancarias o billeteras digitales?',
+                opciones: [
+                    { letra: 'A', texto: 'Desde redes Wi-Fi públicas y abiertas (como parques o plazas).', correcta: true },
+                    { letra: 'B', texto: 'Desde el internet de tu casa.', correcta: false },
+                    { letra: 'C', texto: 'Desde tus datos móviles personales.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Exacto! Las redes públicas de la calle no están protegidas y pueden comprometer tu dinero o tus claves.',
+                explicacionError: 'Evita siempre hacer pagos o abrir tu banco en redes Wi-Fi públicas de la calle, pues no son seguras.'
+            },
+            7: {
+                enunciado: '¿Cuál es el lugar seguro para buscar e instalar aplicaciones en un teléfono?',
+                opciones: [
+                    { letra: 'A', texto: 'Google Play Store o App Store (tiendas oficiales).', correcta: true },
+                    { letra: 'B', texto: 'Un enlace raro que llegó por mensaje de texto de un desconocido.', correcta: false },
+                    { letra: 'C', texto: 'Una página web con avisos parpadeantes que dice que tienes un virus.', correcta: false }
+                ],
+                explicacionCorrecta: '¡Excelente! Las tiendas oficiales verifican que las aplicaciones estén libres de amenazas antes de que las instales.',
+                explicacionError: 'Usa siempre las tiendas oficiales y nunca descargues archivos desde enlaces sospechosos.'
+            }
+        };
+
+        const ejercicioActual = preguntasPorModulo[moduloId] || preguntasPorModulo[1];
+
+        // 3. Pintar pregunta y opciones
+        document.getElementById('badgePregunta').textContent = `Módulo ${moduloId} • Ejercicio Práctico`;
+        document.getElementById('enunciadoPregunta').textContent = ejercicioActual.enunciado;
+
+        const contenedorOpciones = document.getElementById('contenedorOpciones');
+        contenedorOpciones.innerHTML = '';
+
+        ejercicioActual.opciones.forEach((opcion) => {
+            const btn = document.createElement('button');
+            btn.type = 'button'; // Evita recarga involuntaria de página
+            btn.className = 'btn btn-outline-primary btn-lg py-3 px-4 fs-5 text-start rounded-4 opcion-btn';
+            btn.setAttribute('data-correcta', opcion.correcta);
+            btn.innerHTML = `<span class="fw-bold me-2">${opcion.letra}.</span> ${opcion.texto}`;
+            contenedorOpciones.appendChild(btn);
+        });
+
+        const cajaRetro = document.getElementById('cajaRetroalimentacion');
+        const tituloRetro = document.getElementById('tituloRetro');
+        const mensajeRetro = document.getElementById('mensajeRetro');
+        const iconoRetro = document.getElementById('iconoRetro');
+        const botonesFinal = document.getElementById('botonesAccionFinal');
+
+        const botonesOpcion = document.querySelectorAll('.opcion-btn');
+
+        botonesOpcion.forEach(boton => {
+                boton.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+
+                    const esCorrecta = boton.getAttribute('data-correcta') === 'true';
+
+                    if (esCorrecta) {
+                        // Bloquear todas las opciones
+                        botonesOpcion.forEach(b => {
+                            b.disabled = true;
+                            b.classList.remove('btn-outline-primary');
+                        });
+                        boton.classList.add('btn-success');
+
+                        // Desplegar retroalimentación de éxito de forma permanente
+                        cajaRetro.className = 'mt-4 p-4 rounded-4 bg-success-subtle text-success-emphasis border border-2 border-success d-block';
+                        iconoRetro.className = 'bi bi-check-circle-fill text-success fs-1 me-3';
+                        tituloRetro.textContent = '¡Excelente! Respuesta Correcta';
+                        mensajeRetro.textContent = ejercicioActual.explicacionCorrecta;
+
+                        // Registrar progreso en la base de datos
+                        await registrarProgresoBackend(moduloId);
+
+                        // Mostrar el botón de regreso al panel
+                        if (botonesFinal) {
+                            botonesFinal.classList.remove('d-none');
+                            botonesFinal.classList.add('d-flex');
+                        }
+                    } else {
+                        // Respuesta incorrecta
+                        boton.classList.remove('btn-outline-primary');
+                        boton.classList.add('btn-danger');
+
+                        cajaRetro.className = 'mt-4 p-4 rounded-4 bg-danger-subtle text-danger-emphasis border border-2 border-danger d-block';
+                        iconoRetro.className = 'bi bi-exclamation-triangle-fill text-danger fs-1 me-3';
+                        tituloRetro.textContent = '¡Casi lo logras! Vamos a repasar';
+                        mensajeRetro.textContent = ejercicioActual.explicacionError;
+
+                        // Permitir intentar de nuevo tras 2 segundos
+                        setTimeout(() => {
+                            boton.classList.remove('btn-danger');
+                            boton.classList.add('btn-outline-primary');
+                        }, 2000);
+                    }
+                });
+            });
+
+        async function registrarProgresoBackend(idEstudio) {
+            if (!token) return;
+            try {
+                await fetch(`${API_URL}/progreso`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ estudio_id: idEstudio })
+                });
+            } catch (error) {
+                console.error('Error al guardar el progreso:', error);
+            }
+        }
+    });
+</script>
