@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lección - Alfabetización Digital</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Encabezado con controles de accesibilidad -->
+    <header class="bg-white border-bottom py-3 sticky-top shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="dashboard.html" class="btn btn-outline-primary btn-lg fs-5">
+                <i class="bi bi-arrow-left me-1"></i> Volver a mis temas
+            </a>
+            
+            <!-- Barra de Accesibilidad de Lectura -->
+            <div class="d-flex align-items-center gap-2">
+                <span class="fs-6 text-muted d-none d-md-inline">Tamaño de letra:</span>
+                <button class="btn btn-secondary btn-lg fw-bold" id="btnDisminuirTexto" title="Hacer letra más pequeña">A -</button>
+                <button class="btn btn-secondary btn-lg fw-bold" id="btnAumentarTexto" title="Hacer letra más grande">A +</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido de la Lección -->
+    <main class="container my-4 flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                
+                <!-- Identificador del Módulo -->
+                <div class="mb-3">
+                    <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill" id="badgeModulo">Cargando módulo...</span>
+                    <span class="text-muted ms-2 fs-6">Lección Activa</span>
+                </div>
+
+                <!-- Tarjeta Principal de Contenido -->
+                <article class="card shadow-sm border-0 p-4 p-md-5 bg-white rounded-4" id="contenidoLeccion">
+                    
+                    <h1 class="display-5 fw-bold text-dark mb-4" id="tituloLeccion">
+                        Cargando lección...
+                    </h1>
+
+                    <p class="fs-4 lead text-secondary mb-4" id="descripcionLeccion">
+                        Por favor espera un momento mientras preparamos tu clase.
+                    </p>
+
+                    <!-- Contenedor dinámico -->
+                    <div id="cuerpoDinamicoLeccion"></div>
+
+                    <!-- Navegación a la Práctica / Evaluación -->
+                    <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5 pt-3 border-top">
+                        <a href="dashboard.html" class="btn btn-outline-secondary btn-lg py-3 px-4 fs-5 rounded-pill">
+                            <i class="bi bi-arrow-left me-1"></i> Ir al Panel
+                        </a>
+                        <a href="ejercicio.html" id="btnIrAPractica" class="btn btn-success btn-lg py-3 px-5 fs-4 fw-semibold rounded-pill shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i> Realizar la Práctica
+                        </a>
+                    </div>
+
+                </article>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-white border-top py-3 text-center text-muted fs-6 mt-auto">
+        <div class="container">
+            <p class="mb-0">Plataforma de Alfabetización Digital - UTS</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- LÓGICA DIRECTA DE LA LECCIÓN -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Obtener ID del módulo desde la URL (?id=X)
+            const params = new URLSearchParams(window.location.search);
+            const moduloId = parseInt(params.get('id')) || 1;
+
+            const badgeModulo = document.getElementById('badgeModulo');
+            const tituloLeccion = document.getElementById('tituloLeccion');
+            const descripcionLeccion = document.getElementById('descripcionLeccion');
+            const cuerpoDinamico = document.getElementById('cuerpoDinamicoLeccion');
+            const btnIrAPractica = document.getElementById('btnIrAPractica');
+
+            // Actualizar enlace hacia el ejercicio correspondiente
+            if (btnIrAPractica) {
+                btnIrAPractica.href = `ejercicio.html?id=${moduloId}`;
+            }
+
+           // Diccionario completo con los 7 módulos de formación
+           const modulos = {
+                1: {
+                    badge: 'Módulo 1: Manejo Básico de Dispositivos',
+                    titulo: '1. Cómo usar el Ratón (Mouse) y el Teclado',
+                    descripcion: 'El ratón y el teclado son las herramientas principales que te permitirán darle instrucciones a tu computadora.',
+                    html: `
+                        <section class="mb-5">
+                            <h2 class="h3 fw-bold text-primary mb-3">
+                                <i class="bi bi-mouse-fill me-2"></i>Los botones del Ratón (Mouse)
+                            </h2>
+                            <div class="card bg-white border-2 border-primary-subtle p-4 mb-4 text-center rounded-4 shadow-sm">
+                                <div class="d-flex justify-content-center mb-3">
+                                    <svg width="200" height="200" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="40" y="20" width="120" height="200" rx="60" fill="#E9ECEF" stroke="#343A40" stroke-width="4"/>
+                                        <path d="M40 80 C40 46.86 66.86 20 100 20 V100 H40 V80Z" fill="#0D6EFD" stroke="#343A40" stroke-width="4"/>
+                                        <path d="M100 20 C133.14 20 160 46.86 160 80 V100 H100 V20Z" fill="#ADB5BD" stroke="#343A40" stroke-width="4"/>
+                                        <rect x="92" y="45" width="16" height="35" rx="8" fill="#212529"/>
+                                        <text x="70" y="65" fill="#FFFFFF" font-size="16" font-weight="bold" text-anchor="middle">1</text>
+                                        <text x="130" y="65" fill="#212529" font-size="16" font-weight="bold" text-anchor="middle">2</text>
+                                    </svg>
+                                </div>
+                                <p class="fs-5 fw-semibold text-muted mb-0">
+                                    Guía visual: El área azul <strong>(1)</strong> es el botón principal que más vas a utilizar.
+                                </p>
+                            </div>
+                            <div class="row g-4 my-2">
+                                <div class="col-12 col-md-6">
+                                    <div class="p-4 bg-primary-subtle text-primary-emphasis rounded-4 border border-2 border-primary h-100">
+                                        <h3 class="h4 fw-bold mb-2">1. Clic Izquierdo (Azul)</h3>
+                                        <p class="fs-5 mb-0"><strong>Dedo índice:</strong> Sirve para seleccionar, abrir archivos y pulsar botones.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-4 bg-light rounded-4 border border-2 border-secondary h-100">
+                                        <h3 class="h4 fw-bold text-dark mb-2">2. Clic Derecho (Gris)</h3>
+                                        <p class="fs-5 text-muted mb-0"><strong>Dedo medio:</strong> Abre una lista con opciones adicionales.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="alert alert-info border-0 rounded-4 p-4 mt-4 d-flex align-items-center">
+                            <i class="bi bi-lightbulb-fill display-4 text-info-emphasis me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">¡Consejo Útil!</h4>
+                                <p class="fs-5 mb-0">Mueve el ratón apoyando la muñeca sobre la mesa de forma suave.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                2: {
+                    badge: 'Módulo 2: Internet y Comunicación',
+                    titulo: '2. Navegación Web y Correo Electrónico',
+                    descripcion: 'Conoce cómo buscar información en internet, leer noticias y comunicarte con familiares fácilmente.',
+                    html: `
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-success mb-3">
+                                <i class="bi bi-globe2 me-2"></i>La Ventana a Internet: El Navegador
+                            </h2>
+                            <div class="card bg-white border-2 border-success-subtle p-4 mb-4 rounded-4 shadow-sm">
+                                <p class="fs-5 text-muted">El navegador es la aplicación que te permite explorar la web (como Edge o Google Chrome).</p>
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <h4 class="fw-bold fs-5 text-dark"><i class="bi bi-search me-2 text-success"></i>Búsquedas sencillas</h4>
+                                    <p class="fs-5 mb-0">Escribe en la barra de búsqueda palabras claras como <em>"recetas caseras"</em> o <em>"noticias del día"</em> y pulsa la tecla ENTER.</p>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="alert alert-success border-0 rounded-4 p-4 d-flex align-items-center">
+                            <i class="bi bi-envelope-check-fill display-4 text-success-emphasis me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">Tu Correo Electrónico</h4>
+                                <p class="fs-5 mb-0">Funciona como un buzón digital: en la Bandeja de Entrada encuentras tus mensajes recibidos.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                3: {
+                    badge: 'Módulo 3: Seguridad Digital',
+                    titulo: '3. Claves Seguras y Prevención de Engaños',
+                    descripcion: 'Aprende a proteger tu información personal y a reconocer llamadas y mensajes sospechosos.',
+                    html: `
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-warning-emphasis mb-3">
+                                <i class="bi bi-shield-lock-fill me-2"></i>Contraseñas Fuertes
+                            </h2>
+                            <div class="card bg-white border-2 border-warning-subtle p-4 mb-4 rounded-4 shadow-sm">
+                                <ul class="list-group list-group-flush fs-5">
+                                    <li class="list-group-item py-3 px-0">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>Usa combinaciones de palabras y números que solo tú recuerdes.
+                                    </li>
+                                    <li class="list-group-item py-3 px-0">
+                                        <i class="bi bi-x-circle-fill text-danger me-2"></i>No utilices tu año de nacimiento, cédula ni "123456".
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+                        <div class="alert alert-danger border-0 rounded-4 p-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill display-4 text-danger me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">¡Regla de Oro!</h4>
+                                <p class="fs-5 mb-0">Ningún banco ni entidad te solicitará tu contraseña por llamada ni por mensaje. Nunca la entregues.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                4: {
+                    badge: 'Módulo 4: Servicios Digitales Cotidianos',
+                    titulo: '4. Citas Médicas y Trámites en Línea',
+                    descripcion: 'Aprende a pedir citas médicas, consultar certificados y pagar servicios sin hacer filas.',
+                    html: `
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-info-emphasis mb-3">
+                                <i class="bi bi-card-checklist me-2"></i>Pasos para Trámites en Línea
+                            </h2>
+                            <div class="row g-3 fs-5">
+                                <div class="col-12 col-md-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">1</div>
+                                        <strong>Ten a mano tu cédula:</strong> Te la pedirán para validar tu identidad.
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">2</div>
+                                        <strong>Número de contacto:</strong> Es donde recibirás la confirmación de la cita.
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="p-3 bg-light rounded-3 text-center border h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">3</div>
+                                        <strong>Guarda el comprobante:</strong> Anota siempre el número de turno o radicado.
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    `
+                },
+                5: {
+                    badge: 'Módulo 5: Mensajería y Redes Sociales',
+                    titulo: '5. Uso Práctico de WhatsApp y Mensajes',
+                    descripcion: 'Aprende a enviar notas de voz, fotos familiares, hacer videollamadas y organizar tus contactos.',
+                    html: `
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-success mb-3">
+                                <i class="bi bi-chat-dots-fill me-2"></i>Comunicándote con WhatsApp
+                            </h2>
+                            <div class="row g-4 my-2">
+                                <div class="col-12 col-md-6">
+                                    <div class="p-4 bg-success-subtle rounded-4 border border-2 border-success h-100">
+                                        <h3 class="h4 fw-bold text-success-emphasis mb-2"><i class="bi bi-mic-fill me-2"></i>Notas de Voz</h3>
+                                        <p class="fs-5 mb-0">Mantén presionado el icono del micrófono mientras hablas y suéltalo cuando termines.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-4 bg-light rounded-4 border border-2 border-secondary h-100">
+                                        <h3 class="h4 fw-bold text-dark mb-2"><i class="bi bi-camera-video-fill me-2 text-primary"></i>Videollamada</h3>
+                                        <p class="fs-5 text-muted mb-0">Toca el icono de la cámara arriba en la conversación para ver a tu familiar en vivo.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="alert alert-warning border-0 rounded-4 p-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle-fill display-4 text-warning-emphasis me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">¡Cuidado con cadenas dudosas!</h4>
+                                <p class="fs-5 mb-0">Si te envían premios, regalos o promociones que piden reenviar a 10 contactos, son engaños. No los reenvíes.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                6: {
+                    badge: 'Módulo 6: Pagos y Banca Móvil Segura',
+                    titulo: '6. Manejo de Apps Bancarias y Pagos Digitales',
+                    descripcion: 'Conoce cómo consultar saldos, recibir transferencias y pagar servicios de manera protegida desde tu celular.',
+                    html: `
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-primary mb-3">
+                                <i class="bi bi-wallet2 me-2"></i>Billeteras Digitales
+                            </h2>
+                            <div class="card bg-white border-2 border-primary-subtle p-4 mb-4 rounded-4 shadow-sm">
+                                <p class="fs-5 text-muted">Aplicaciones como billeteras móviles te permiten mover dinero con tu número de teléfono sin tener que ir a un cajero.</p>
+                                <ul class="list-group list-group-flush fs-5">
+                                    <li class="list-group-item py-3 px-0">
+                                        <strong>Clave de 4 dígitos:</strong> Nunca la anotes en un papel visible junto a tu celular.
+                                    </li>
+                                    <li class="list-group-item py-3 px-0">
+                                        <strong>Comprobante de envío:</strong> Siempre revisa el nombre del destinatario antes de presionar enviar.
+                                    </li>
+                                </ul>
+                            </div>
+                        </section>
+                        <div class="alert alert-danger border-0 rounded-4 p-4 d-flex align-items-center">
+                            <i class="bi bi-shield-slash-fill display-4 text-danger me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">Seguridad en Pagos</h4>
+                                <p class="fs-5 mb-0">Nunca realices pagos ni entres a tu banco conectado a redes Wi-Fi públicas o abiertas de la calle o parques.</p>
+                            </div>
+                        </div>
+                    `
+                },
+                7: {
+                    badge: 'Módulo 7: Descargas Seguras de Aplicaciones',
+                    titulo: '7. Cómo Instalar y Descargar Aplicaciones de Forma Segura',
+                    descripcion: 'Aprende a buscar, verificar y descargar aplicaciones en tu celular o computador sin poner en riesgo tu información ni tu equipo.',
+                    html: `
+                        <section class="mb-5">
+                            <h2 class="h3 fw-bold text-primary mb-3">
+                                <i class="bi bi-shield-check me-2"></i>La Tienda Oficial: Tu Espacio Seguro
+                            </h2>
+                            <div class="card bg-white border-2 border-primary-subtle p-4 mb-4 rounded-4 shadow-sm">
+                                <p class="fs-5 text-muted mb-3">Para instalar cualquier aplicación en tu celular, utiliza siempre las tiendas oficiales:</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <h4 class="h5 fw-bold text-dark mb-1">
+                                                <i class="bi bi-google-play me-2 text-success"></i>Google Play Store
+                                            </h4>
+                                            <p class="fs-6 text-muted mb-0">Para celulares con sistema Android (Samsung, Xiaomi, Motorola, etc.).</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="p-3 bg-light rounded-3 border h-100">
+                                            <h4 class="h5 fw-bold text-dark mb-1">
+                                                <i class="bi bi-apple me-2 text-secondary"></i>App Store
+                                            </h4>
+                                            <p class="fs-6 text-muted mb-0">Para teléfonos iPhone o tabletas iPad de Apple.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="mb-4">
+                            <h2 class="h3 fw-bold text-primary mb-3">
+                                <i class="bi bi-check2-circle me-2"></i>3 Pasos antes de presionar "Instalar"
+                            </h2>
+                            <div class="row g-4 my-2">
+                                <div class="col-12 col-md-4">
+                                    <div class="p-4 bg-light rounded-4 border border-2 border-primary-subtle text-center h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">1</div>
+                                        <h3 class="h5 fw-bold text-dark mb-2">Mira la Calificación</h3>
+                                        <p class="fs-5 text-muted mb-0">Prefiere aplicaciones con estrellas altas (4.0 o más) y comentarios positivos de otros usuarios.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="p-4 bg-light rounded-4 border border-2 border-primary-subtle text-center h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">2</div>
+                                        <h3 class="h5 fw-bold text-dark mb-2">Revisa el Creador</h3>
+                                        <p class="fs-5 text-muted mb-0">Comprueba que el nombre de la empresa desarrolladora sea el oficial (ej: WhatsApp LLC, Tu Banco, etc.).</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <div class="p-4 bg-light rounded-4 border border-2 border-primary-subtle text-center h-100">
+                                        <div class="display-6 fw-bold text-primary mb-2">3</div>
+                                        <h3 class="h5 fw-bold text-dark mb-2">Atento a los Permisos</h3>
+                                        <p class="fs-5 text-muted mb-0">Si un juego sencillo o linterna te pide acceso a tus contactos o llamadas, no lo aceptes.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="alert alert-danger border-0 rounded-4 p-4 mt-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-octagon-fill display-4 text-danger me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">¡Alerta Importante!</h4>
+                                <p class="fs-5 mb-0">Nunca descargues aplicaciones desde enlaces que te envíen por mensajes de texto, WhatsApp o páginas web que digan: <em>"Tu teléfono tiene un virus, pulsa aquí para limpiarlo"</em>. Esas alertas son falsas.</p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-success border-0 rounded-4 p-4 mt-3 d-flex align-items-center">
+                            <i class="bi bi-award-fill display-4 text-success-emphasis me-3"></i>
+                            <div>
+                                <h4 class="alert-heading fw-bold mb-1">¡Felicitaciones!</h4>
+                                <p class="fs-5 mb-0">Con este módulo completas todos los conocimientos necesarios para usar tus dispositivos e internet con total seguridad e independencia.</p>
+                            </div>
+                        </div>
+                    `
+                }
+            };
+
+            // 3. Renderizar el módulo seleccionado
+            const contenido = modulos[moduloId] || modulos[1];
+            badgeModulo.textContent = contenido.badge;
+            tituloLeccion.textContent = contenido.titulo;
+            descripcionLeccion.textContent = contenido.descripcion;
+            cuerpoDinamico.innerHTML = contenido.html;
+
+            // 4. Accesibilidad: Aumentar y Disminuir Letra
+            const btnAumentar = document.getElementById('btnAumentarTexto');
+            const btnDisminuir = document.getElementById('btnDisminuirTexto');
+            const contenedorTexto = document.getElementById('contenidoLeccion');
+
+            if (btnAumentar && btnDisminuir && contenedorTexto) {
+                let zoom = 1.0;
+                btnAumentar.addEventListener('click', () => {
+                    if (zoom < 1.35) { zoom += 0.1; aplicarZoom(); }
+                });
+                btnDisminuir.addEventListener('click', () => {
+                    if (zoom > 0.9) { zoom -= 0.1; aplicarZoom(); }
+                });
+                function aplicarZoom() {
+                    const els = contenedorTexto.querySelectorAll('h1, h2, h3, h4, p, li, strong, span');
+                    els.forEach(el => {
+                        if (!el.dataset.baseSize) {
+                            el.dataset.baseSize = parseFloat(window.getComputedStyle(el).fontSize);
+                        }
+                        el.style.fontSize = `${parseFloat(el.dataset.baseSize) * zoom}px`;
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
