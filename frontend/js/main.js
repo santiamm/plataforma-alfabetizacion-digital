@@ -174,10 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('Progreso no disponible:', errProgreso);
             }
 
-            // 3. Actualizar la barra de progreso (calculado sobre el total real de módulos)
+            // 3. Actualizar la barra de progreso
             const total = estudios.length > 0 ? estudios.length : 7;
             const completados = completadosIds.length;
-            // Tope estricto en 100%
             const porcentaje = Math.min(Math.round((completados / total) * 100), 100);
 
             const porcentajeTexto = document.getElementById('porcentajeTotal');
@@ -189,6 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 barraProgreso.setAttribute('aria-valuenow', porcentaje);
             }
 
+            // NUEVO: Mostrar banner de certificado si completó el 100%
+            const bannerCertificado = document.getElementById('bannerCertificado');
+            if (bannerCertificado) {
+                if (porcentaje >= 100) {
+                    bannerCertificado.classList.remove('d-none');
+                } else {
+                    bannerCertificado.classList.add('d-none');
+                }
+            }
             // 4. Configuraciones de estilo para los 7 módulos
             const configuracionTarjetas = [
                 { colorBg: 'bg-primary text-white', icono: 'bi-display' },

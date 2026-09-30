@@ -18,3 +18,53 @@ a:focus, button:focus, .btn:focus {
     align-items: center;
     justify-content: center;
 }
+
+/* Escalas de fuente para accesibilidad */
+body.fuente-sm { font-size: 16px; }
+body.fuente-md { font-size: 18px; }
+body.fuente-lg { font-size: 21px; }
+body.fuente-xl { font-size: 24px; }
+
+/* Escalado proporcional para títulos */
+body.fuente-lg h1 { font-size: 2.5rem !important; }
+body.fuente-lg h2 { font-size: 2.1rem !important; }
+body.fuente-lg h3 { font-size: 1.8rem !important; }
+body.fuente-xl h1 { font-size: 2.9rem !important; }
+body.fuente-xl h2 { font-size: 2.4rem !important; }
+body.fuente-xl h3 { font-size: 2.1rem !important; }
+
+/* Modo Alto Contraste */
+body.alto-contraste {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+body.alto-contraste .card,
+body.alto-contraste header,
+body.alto-contraste footer,
+body.alto-contraste .bg-white,
+body.alto-contraste .bg-light {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffff00 !important;
+}
+
+body.alto-contraste h1,
+body.alto-contraste h2,
+body.alto-contraste h3,
+body.alto-contraste h4,
+body.alto-contraste p,
+body.alto-contraste span,
+body.alto-contraste .text-dark,
+body.alto-contraste .text-secondary,
+body.alto-contraste .text-muted {
+    color: #ffffff !important;
+}
+
+body.alto-contraste .btn-primary,
+body.alto-contraste .btn-outline-primary {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    border: 3px solid #ffffff !important;
+}
