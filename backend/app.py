@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
@@ -11,7 +12,7 @@ load_dotenv()
 app = Flask(__name__)
 # Reemplaza la línea: CORS(app)
 CORS(app, resources={r"/*": {"origins": "*"}})
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///database.db')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'clave_respaldo_uts_2026')
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
@@ -36,6 +37,7 @@ class Estudio(db.Model):
     puntos_recompensa = db.Column(db.Integer, nullable=False)
 
 class Progreso(db.Model):
+    __table_args__ = (db.UniqueConstraint('usuario_id', 'estudio_id', name='uq_progreso_usuario_estudio'),)
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     estudio_id = db.Column(db.Integer, db.ForeignKey('estudio.id'), nullable=False)
@@ -129,14 +131,28 @@ def obtener_estudios():
 @jwt_required()
 def registrar_progreso():
     usuario_id_actual = get_jwt_identity()
-    datos = request.get_json() or {}
-    nuevo = Progreso(
-        usuario_id=int(usuario_id_actual),
-        estudio_id=datos.get('estudio_id'),
-        completado=True
-    )
-    db.session.add(nuevo)
-    db.session.commit()
+    datos = request.get_json(silent=True) or {}
+    estudio_id = datos.get('estudio_id')
+
+    # bool es subclase de int en Python; se excluye de forma explícita
+    if not isinstance(estudio_id, int) or isinstance(estudio_id, bool):
+        return jsonify({"mensaje": "estudio_id es obligatorio y debe ser un número entero."}), 400
+
+    if not db.session.get(Estudio, estudio_id):
+        return jsonify({"mensaje": "El módulo indicado no existe."}), 404
+
+    usuario_id = int(usuario_id_actual)
+    ya_completado = Progreso.query.filter_by(usuario_id=usuario_id, estudio_id=estudio_id).first()
+    if ya_completado:
+        return jsonify({"mensaje": "Módulo ya completado."}), 200
+
+    db.session.add(Progreso(usuario_id=usuario_id, estudio_id=estudio_id, completado=True))
+    try:
+        db.session.commit()
+    except IntegrityError:
+        # Dos peticiones simultáneas: la restricción única frena la segunda
+        db.session.rollback()
+        return jsonify({"mensaje": "Módulo ya completado."}), 200
     return jsonify({"mensaje": "Progreso guardado correctamente"}), 201
 
 @app.route('/progreso', methods=['GET'])
