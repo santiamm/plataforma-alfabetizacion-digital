@@ -80,6 +80,9 @@ def registro():
     return jsonify({"mensaje": "Usuario registrado con éxito"}), 201
 
 # RUTA LOGIN (soporta /login y /api/login)
+@app.route('/', methods=['GET'])
+def index():
+    return {"status": "API del proyecto funcionando correctamente"}
 @app.route('/login', methods=['POST'])
 @app.route('/api/login', methods=['POST'])
 def login():
