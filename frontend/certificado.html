@@ -59,14 +59,29 @@
             <a href="dashboard.html" class="btn btn-outline-secondary btn-lg fs-5 rounded-pill">
                 <i class="bi bi-arrow-left me-2"></i>Volver al Panel
             </a>
-            <button onclick="window.print()" class="btn btn-primary btn-lg fs-5 rounded-pill shadow-sm">
+            <button id="botonImprimir" onclick="window.print()" class="btn btn-primary btn-lg fs-5 rounded-pill shadow-sm d-none">
                 <i class="bi bi-printer-fill me-2"></i>Imprimir / Guardar en PDF
             </button>
         </div>
     </div>
 
+    <!-- Aviso cuando el servidor no autoriza el certificado -->
+    <div id="avisoCertificado" class="container no-print my-auto d-none">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="alert alert-warning border-2 rounded-4 p-4 p-md-5 text-center shadow-sm" role="alert">
+                    <i class="bi bi-info-circle-fill display-4 d-block mb-3"></i>
+                    <p class="fs-4 fw-bold mb-4" id="mensajeCertificado">Verificando tu certificado...</p>
+                    <a href="dashboard.html" class="btn btn-primary btn-lg fs-5 rounded-pill">
+                        <i class="bi bi-arrow-left me-2"></i>Volver al Panel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Contenedor del Certificado / Diploma -->
-    <main class="container my-auto">
+    <main id="contenedorCertificado" class="container my-auto d-none">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
                 
@@ -143,37 +158,46 @@
 
     <!-- Script para cargar datos dinámicos -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        const API_URL = 'http://127.0.0.1:5000';
+
+        function mostrarAviso(mensaje) {
+            document.getElementById('mensajeCertificado').textContent = mensaje;
+            document.getElementById('avisoCertificado').classList.remove('d-none');
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            // 1. Obtener el nombre del usuario desde localStorage o decodificando el token
-            let nombreUsuario = localStorage.getItem('usuario_nombre') || localStorage.getItem('nombre');
+            // El servidor decide si el usuario puede ver el certificado
+            try {
+                const respuesta = await fetch(`${API_URL}/certificado`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const datos = await respuesta.json().catch(() => ({}));
 
-            if (!nombreUsuario) {
-                try {
-                    // Intento de lectura desde payload del JWT
-                    const base64Url = token.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    const payload = JSON.parse(jsonPayload);
-                    nombreUsuario = payload.sub || payload.nombre || 'Participante';
-                } catch (e) {
-                    nombreUsuario = 'Participante Destacado';
+                if (!respuesta.ok) {
+                    mostrarAviso(datos.mensaje || 'No pudimos verificar tu certificado. Intenta más tarde.');
+                    return;
                 }
+
+                // 1. Nombre completo tomado de la base de datos
+                document.getElementById('nombreCertificado').textContent = datos.nombre;
+
+                // 2. Fecha de emisión del servidor (AAAA-MM-DD), armada en hora local para no correr el día
+                const [anio, mes, dia] = datos.fecha_emision.split('-').map(Number);
+                const opcionesFecha = { year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('fechaExpedicion').textContent =
+                    new Date(anio, mes - 1, dia).toLocaleDateString('es-ES', opcionesFecha);
+
+                document.getElementById('contenedorCertificado').classList.remove('d-none');
+                document.getElementById('botonImprimir').classList.remove('d-none');
+            } catch (error) {
+                mostrarAviso('No pudimos verificar tu certificado. Intenta más tarde.');
             }
-
-            document.getElementById('nombreCertificado').textContent = nombreUsuario;
-
-            // 2. Establecer la fecha actual en formato legible en español
-            const opcionesFecha = { year: 'numeric', month: 'long', day: 'numeric' };
-            const fechaHoy = new Date().toLocaleDateString('es-ES', opcionesFecha);
-            document.getElementById('fechaExpedicion').textContent = fechaHoy;
         });
     </script>
 </body>
