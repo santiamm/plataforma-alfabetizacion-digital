@@ -1,4 +1,5 @@
 import os
+from datetime import date
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -177,6 +178,34 @@ def obtener_perfil():
         "telefono": usuario.telefono,
         "correo": usuario.correo,
         "puntos_totales": puntos
+    }), 200
+
+@app.route('/certificado', methods=['GET'])
+@app.route('/api/certificado', methods=['GET'])
+@jwt_required()
+def obtener_certificado():
+    usuario = db.session.get(Usuario, int(get_jwt_identity()))
+    if not usuario:
+        return jsonify({"mensaje": "Usuario no encontrado."}), 404
+
+    # Se compara contra los módulos que existan hoy en la base, no contra un número fijo
+    ids_modulos = {e.id for e in Estudio.query.all()}
+    if not ids_modulos:
+        return jsonify({"mensaje": "Aún no hay módulos disponibles."}), 403
+
+    # Solo cuentan los progresos de módulos que existen
+    completados = {
+        p.estudio_id for p in Progreso.query.filter_by(usuario_id=usuario.id, completado=True).all()
+        if p.estudio_id in ids_modulos
+    }
+    faltan = len(ids_modulos) - len(completados)
+    if faltan > 0:
+        return jsonify({"mensaje": f"Te faltan {faltan} módulo(s) para obtener el certificado."}), 403
+
+    # usuario.nombre guarda nombre y apellido juntos desde el registro
+    return jsonify({
+        "nombre": usuario.nombre,
+        "fecha_emision": date.today().isoformat()
     }), 200
 
 if __name__ == '__main__':
