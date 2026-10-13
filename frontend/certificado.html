@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Certificado de Finalización - Alfabetización Digital</title>
-    
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Iconos de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
-        /* Estilos específicos para el diploma */
         .diploma-container {
             border: 12px double #0d6efd;
             background: #ffffff;
@@ -35,7 +32,6 @@
             z-index: 1;
         }
 
-        /* Ocultar elementos de navegación al mandar a imprimir o guardar PDF */
         @media print {
             .no-print {
                 display: none !important;
@@ -53,7 +49,6 @@
 </head>
 <body class="bg-light py-4 min-vh-100 d-flex flex-column justify-content-between">
 
-    <!-- Barra de acciones superior (se oculta al imprimir) -->
     <div class="container no-print mb-4">
         <div class="d-flex justify-content-between align-items-center">
             <a href="dashboard.html" class="btn btn-outline-secondary btn-lg fs-5 rounded-pill">
@@ -65,7 +60,6 @@
         </div>
     </div>
 
-    <!-- Aviso cuando el servidor no autoriza el certificado -->
     <div id="avisoCertificado" class="container no-print my-auto d-none">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-8">
@@ -80,19 +74,16 @@
         </div>
     </div>
 
-    <!-- Contenedor del Certificado / Diploma -->
     <main id="contenedorCertificado" class="container my-auto d-none">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-10">
-                
+
                 <div class="diploma-container p-4 p-md-5 rounded-4 text-center">
-                    
-                    <!-- Marca de agua de fondo -->
+
                     <i class="bi bi-award-fill diploma-watermark"></i>
 
                     <div class="diploma-content py-3">
-                        
-                        <!-- Encabezado institucional -->
+
                         <div class="mb-4">
                             <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 rounded-pill fs-6 text-uppercase fw-bold tracking-wider">
                                 Programa de Formación en Competencias Digitales
@@ -101,24 +92,21 @@
                             <p class="fs-5 text-muted">Se otorga con orgullo el presente reconocimiento a:</p>
                         </div>
 
-                        <!-- Nombre del Estudiante -->
                         <div class="my-4 py-2 border-bottom border-2 border-primary d-inline-block px-5">
                             <h2 class="display-6 fw-bold text-primary mb-0" id="nombreCertificado">
                                 Cargando participante...
                             </h2>
                         </div>
 
-                        <!-- Descripción del logro -->
                         <div class="col-12 col-md-10 mx-auto my-4">
                             <p class="fs-5 text-secondary leading-relaxed">
-                                Por haber completado con dedicación y éxito los <strong>7 módulos formativos</strong> del programa de 
+                                Por haber completado con dedicación y éxito los <strong>7 módulos formativos</strong> del programa de
                                 <strong>Alfabetización Digital</strong>, demostrando habilidades prácticas en manejo de computadores, navegación segura en internet, comunicación por mensajería, trámites en línea y prevención contra fraudes digitales.
                             </p>
                         </div>
 
-                        <!-- Sellos y Firmas -->
                         <div class="row mt-5 pt-4 align-items-end g-4">
-                            
+
                             <div class="col-4">
                                 <div class="border-top border-dark pt-2 mx-auto" style="max-width: 200px;">
                                     <p class="fw-bold mb-0 fs-6">Dirección Académica</p>
@@ -151,12 +139,10 @@
         </div>
     </main>
 
-    <!-- Pie de página (oculto en impresión) -->
     <footer class="no-print text-center text-muted py-3 mt-4">
         <small>Plataforma de Alfabetización Digital</small>
     </footer>
 
-    <!-- Script para cargar datos dinámicos -->
     <script>
         const API_URL = 'http://127.0.0.1:5000';
 
@@ -172,7 +158,6 @@
                 return;
             }
 
-            // El servidor decide si el usuario puede ver el certificado
             try {
                 const respuesta = await fetch(`${API_URL}/certificado`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -184,10 +169,8 @@
                     return;
                 }
 
-                // 1. Nombre completo tomado de la base de datos
                 document.getElementById('nombreCertificado').textContent = datos.nombre;
 
-                // 2. Fecha de emisión del servidor (AAAA-MM-DD), armada en hora local para no correr el día
                 const [anio, mes, dia] = datos.fecha_emision.split('-').map(Number);
                 const opcionesFecha = { year: 'numeric', month: 'long', day: 'numeric' };
                 document.getElementById('fechaExpedicion').textContent =

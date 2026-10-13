@@ -225,5 +225,4 @@ __pycache__/
 
 # Entorno y BD
 .env
-backend/database.db
-backend/instance/
+!backend/instance/

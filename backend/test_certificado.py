@@ -1,7 +1,13 @@
 from datetime import date
 
 import pytest
-from app import app, db, Estudio, Progreso
+from app import app, db, Estudio, Progreso, Intento
+
+
+def _completar(cliente, cabeceras, estudio_id):
+    db.session.add(Intento(usuario_id=1, estudio_id=estudio_id, leccion=1, pregunta=1, opcion="A", correcta=True))
+    db.session.commit()
+    cliente.post('/progreso', json={"estudio_id": estudio_id}, headers=cabeceras)
 
 
 @pytest.fixture
@@ -16,7 +22,6 @@ def cliente():
         db.session.commit()
 
         cliente = app.test_client()
-        # Se registra por la API para comprobar que se guardan nombre y apellido juntos
         cliente.post('/registro', json={
             "nombre": "Jose",
             "apellido": "Perez Gomez",
@@ -60,7 +65,7 @@ def test_certificado_base_sin_modulos(cliente, cabeceras):
 
 
 def test_certificado_incompleto(cliente, cabeceras):
-    cliente.post('/progreso', json={"estudio_id": 1}, headers=cabeceras)
+    _completar(cliente, cabeceras, 1)
 
     respuesta = cliente.get('/certificado', headers=cabeceras)
 
@@ -70,8 +75,8 @@ def test_certificado_incompleto(cliente, cabeceras):
 
 @pytest.mark.parametrize("ruta", ['/certificado', '/api/certificado'])
 def test_certificado_completo(cliente, cabeceras, ruta):
-    cliente.post('/progreso', json={"estudio_id": 1}, headers=cabeceras)
-    cliente.post('/progreso', json={"estudio_id": 2}, headers=cabeceras)
+    _completar(cliente, cabeceras, 1)
+    _completar(cliente, cabeceras, 2)
     assert Progreso.query.count() == 2
 
     respuesta = cliente.get(ruta, headers=cabeceras)

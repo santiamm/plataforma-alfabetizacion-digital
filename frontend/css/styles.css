@@ -1,17 +1,14 @@
-/* Variables y ajustes generales de accesibilidad */
 body {
     font-size: 1.15rem;
     line-height: 1.6;
     color: #212529;
 }
 
-/* Enfoque accesible en botones y enlaces */
 a:focus, button:focus, .btn:focus {
     outline: 3px solid #ffbf47 !important;
     outline-offset: 2px;
 }
 
-/* Botones principales de gran tamaño */
 .btn-lg {
     min-height: 64px;
     display: inline-flex;
@@ -19,13 +16,21 @@ a:focus, button:focus, .btn:focus {
     justify-content: center;
 }
 
-/* Escalas de fuente para accesibilidad */
+.opcion-btn {
+    flex-wrap: wrap;
+}
+.opcion-btn:disabled {
+    opacity: 1;
+}
+.opcion-btn .marca-opcion {
+    width: 100%;
+}
+
 body.fuente-sm { font-size: 16px; }
 body.fuente-md { font-size: 18px; }
 body.fuente-lg { font-size: 21px; }
 body.fuente-xl { font-size: 24px; }
 
-/* Escalado proporcional para títulos */
 body.fuente-lg h1 { font-size: 2.5rem !important; }
 body.fuente-lg h2 { font-size: 2.1rem !important; }
 body.fuente-lg h3 { font-size: 1.8rem !important; }
@@ -33,7 +38,6 @@ body.fuente-xl h1 { font-size: 2.9rem !important; }
 body.fuente-xl h2 { font-size: 2.4rem !important; }
 body.fuente-xl h3 { font-size: 2.1rem !important; }
 
-/* Modo Alto Contraste */
 body.alto-contraste {
     background-color: #000000 !important;
     color: #ffffff !important;
