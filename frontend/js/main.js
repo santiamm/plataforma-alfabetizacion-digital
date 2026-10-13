@@ -1,11 +1,7 @@
-// Esperar a que cargue todo el documento
 document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = 'http://127.0.0.1:5000';
     const API_URL = API_BASE;
-    // -------------------------------------------------------------
-    // 1. Accesibilidad: Mostrar / Ocultar Contraseñas
-    // -------------------------------------------------------------
     function setupPasswordToggle(btnId, inputId, iconId) {
         const btn = document.getElementById(btnId);
         const input = document.getElementById(inputId);
@@ -29,9 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPasswordToggle('btnToggleRegPassword', 'regPassword', 'iconoRegOjo');
 
 
-    // -------------------------------------------------------------
-    // 2. Manejo de Registro de Usuario
-    // -------------------------------------------------------------
     const registroForm = document.getElementById('registroForm');
     if (registroForm) {
         registroForm.addEventListener('submit', async (e) => {
@@ -73,15 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // -------------------------------------------------------------
-    // 3. Manejo de Inicio de Sesión (Login)
-    // -------------------------------------------------------------
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Acepta campo 'correo', 'telefono' o 'identificador' según el HTML que tengas
             const inputIdentificador = document.getElementById('correo') || document.getElementById('telefono') || document.getElementById('identificador');
             const identificador = inputIdentificador ? inputIdentificador.value.trim() : '';
             const password = document.getElementById('password')?.value.trim() || '';
@@ -103,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resultado = await respuesta.json();
 
                 if (respuesta.ok) {
-                    // Guardar token JWT y datos de sesión
                     if (resultado.access_token) {
                         localStorage.setItem('token', resultado.access_token);
                     }
@@ -122,47 +110,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-   // -------------------------------------------------------------
-    // 4. Lógica Dinámica del Dashboard (Usuario, Progreso y Módulos)
-    // -------------------------------------------------------------
     const contenedorModulos = document.getElementById('contenedorModulos');
     const token = localStorage.getItem('token');
 
     if (contenedorModulos) {
-        // Redirigir a login si no hay sesión iniciada
         if (!token) {
             window.location.href = 'login.html';
             return;
         }
 
-        // Pintar nombre guardado inmediatamente
         const nombreGuardado = localStorage.getItem('usuario_nombre');
         const nombreSpan = document.getElementById('nombreUsuario');
         if (nombreSpan && nombreGuardado) {
             nombreSpan.textContent = nombreGuardado;
         }
 
-        // Cargar datos y módulos del backend
         cargarDashboard();
     }
 
     async function cargarDashboard() {
         try {
-            // 1. Obtener los módulos creados en la base de datos
             const resEstudios = await fetch(`${API_URL}/estudios`);
             const estudios = await resEstudios.json();
 
-            // 2. Obtener el progreso del usuario y filtrar duplicados con new Set()
             let completadosIds = [];
             try {
                 const resProgreso = await fetch(`${API_URL}/progreso`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 if (resProgreso.ok) {
                     const progresos = await resProgreso.json();
                     if (Array.isArray(progresos)) {
-                        // [...new Set(...)] elimina IDs repetidos aunque se hayan enviado varias veces
                         completadosIds = [...new Set(progresos.map(p => p.estudio_id))];
                     }
                 } else if (resProgreso.status === 401) {
@@ -174,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn('Progreso no disponible:', errProgreso);
             }
 
-            // 3. Actualizar la barra de progreso
             const total = estudios.length > 0 ? estudios.length : 7;
             const completados = completadosIds.length;
             const porcentaje = Math.min(Math.round((completados / total) * 100), 100);
@@ -188,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 barraProgreso.setAttribute('aria-valuenow', porcentaje);
             }
 
-            // NUEVO: Mostrar banner de certificado si completó el 100%
             const bannerCertificado = document.getElementById('bannerCertificado');
             if (bannerCertificado) {
                 if (porcentaje >= 100) {
@@ -197,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     bannerCertificado.classList.add('d-none');
                 }
             }
-            // 4. Configuraciones de estilo para los 7 módulos
             const configuracionTarjetas = [
                 { colorBg: 'bg-primary text-white', icono: 'bi-display' },
                 { colorBg: 'bg-success text-white', icono: 'bi-globe2' },
@@ -227,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                             Módulo ${index + 1}
                                         </span>
                                         <div class="${estaCompletado ? 'text-success' : 'text-muted'} fw-bold fs-6 mt-1">
-                                            <i class="bi ${estaCompletado ? 'bi-check-circle-fill' : 'bi-clock'}"></i> 
+                                            <i class="bi ${estaCompletado ? 'bi-check-circle-fill' : 'bi-clock'}"></i>
                                             ${estaCompletado ? 'Completado' : 'Pendiente'}
                                         </div>
                                     </div>
@@ -237,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="mt-3">
                                 <a href="leccion.html?id=${modulo.id}" class="btn ${estaCompletado ? 'btn-outline-success' : 'btn-primary'} btn-lg w-100 py-3 fs-5 fw-semibold rounded-pill">
-                                    <i class="bi ${estaCompletado ? 'bi-arrow-clockwise' : 'bi-play-circle-fill'} me-2"></i> 
+                                    <i class="bi ${estaCompletado ? 'bi-arrow-clockwise' : 'bi-play-circle-fill'} me-2"></i>
                                     ${estaCompletado ? 'Repasar Módulo' : 'Empezar Módulo'}
                                 </a>
                             </div>
@@ -252,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Botón Salir
     const btnSalir = document.getElementById('btnCerrarSesion');
     if (btnSalir) {
         btnSalir.addEventListener('click', (e) => {
@@ -263,9 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // -------------------------------------------------------------
-    // 5. Accesibilidad: Aumentar / Disminuir tamaño de fuente
-    // -------------------------------------------------------------
     const btnAumentar = document.getElementById('btnAumentarTexto');
     const btnDisminuir = document.getElementById('btnDisminuirTexto');
     const contenedorTexto = document.getElementById('contenidoLeccion');
@@ -301,9 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // -------------------------------------------------------------
-    // 6. Lógica interactiva de Ejercicios y Retroalimentación
-    // -------------------------------------------------------------
     const botonesOpcion = document.querySelectorAll('.opcion-btn');
     const cajaRetro = document.getElementById('cajaRetroalimentacion');
     const tituloRetro = document.getElementById('tituloRetro');
@@ -316,7 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
             boton.addEventListener('click', () => {
                 const esCorrecta = boton.getAttribute('data-correcta') === 'true';
 
-                // Deshabilitar las opciones para evitar múltiples clics
                 botonesOpcion.forEach(b => b.classList.add('disabled'));
 
                 cajaRetro.classList.remove('d-none', 'alert-success', 'alert-danger', 'bg-success-subtle', 'bg-danger-subtle', 'text-success-emphasis', 'text-danger-emphasis');
@@ -343,9 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     botonesFinal.classList.remove('d-none');
                 }
             });
-// -------------------------------------------------------------
-    // 7. Carga Dinámica de Contenido según Módulo (?id=)
-    // -------------------------------------------------------------
     const cuerpoDinamico = document.getElementById('cuerpoDinamicoLeccion');
     const badgeModulo = document.getElementById('badgeModulo');
     const tituloLeccion = document.getElementById('tituloLeccion');
@@ -353,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnIrAPractica = document.getElementById('btnIrAPractica');
 
     if (cuerpoDinamico && tituloLeccion) {
-        // Obtener el ID de la URL (por ejemplo: leccion.html?id=2)
         const params = new URLSearchParams(window.location.search);
         const moduloId = parseInt(params.get('id')) || 1;
 
@@ -361,12 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btnIrAPractica.href = `ejercicio.html?id=${moduloId}`;
         }
 
-        // Si es el módulo 1, dejamos el HTML original del mouse y teclado
         if (moduloId === 2) {
             badgeModulo.textContent = 'Módulo 2: Internet y Comunicación';
             tituloLeccion.textContent = '2. Navegación Web y Correo Electrónico';
             descripcionLeccion.textContent = 'Aprende a buscar información en internet y cómo comunicarte con familiares y amigos sin complicaciones.';
-            
+
             cuerpoDinamico.innerHTML = `
                 <section class="mb-5">
                     <h2 class="h3 fw-bold text-success mb-3">
@@ -413,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeModulo.textContent = 'Módulo 3: Seguridad Digital';
             tituloLeccion.textContent = '3. Protección Personal y Contraseñas Seguras';
             descripcionLeccion.textContent = 'Aprende a reconocer engaños, proteger tus datos personales y navegar con total tranquilidad.';
-            
+
             cuerpoDinamico.innerHTML = `
                 <section class="mb-5">
                     <h2 class="h3 fw-bold text-warning-emphasis mb-3">
@@ -444,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeModulo.textContent = 'Módulo 4: Servicios Digitales Cotidianos';
             tituloLeccion.textContent = '4. Trámites, Citas Médicas y Servicios en Línea';
             descripcionLeccion.textContent = 'Descubre cómo consultar trámites del gobierno, turnos de salud y facturas de servicios sin salir de casa.';
-            
+
             cuerpoDinamico.innerHTML = `
                 <section class="mb-5">
                     <h2 class="h3 fw-bold text-info-emphasis mb-3">

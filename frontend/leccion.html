@@ -4,24 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lección - Alfabetización Digital</title>
-    
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Iconos de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-    <!-- Encabezado con controles de accesibilidad -->
     <header class="bg-white border-bottom py-3 sticky-top shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="dashboard.html" class="btn btn-outline-primary btn-lg fs-5">
                 <i class="bi bi-arrow-left me-1"></i> Volver a mis temas
             </a>
-            
-            <!-- Barra de Accesibilidad de Lectura -->
+
             <div class="d-flex align-items-center gap-2">
                 <span class="fs-6 text-muted d-none d-md-inline">Tamaño de letra:</span>
                 <button class="btn btn-secondary btn-lg fw-bold" id="btnDisminuirTexto" title="Hacer letra más pequeña">A -</button>
@@ -30,20 +25,17 @@
         </div>
     </header>
 
-    <!-- Contenido de la Lección -->
     <main class="container my-4 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
-                
-                <!-- Identificador del Módulo -->
+
                 <div class="mb-3">
                     <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill" id="badgeModulo">Cargando módulo...</span>
                     <span class="text-muted ms-2 fs-6">Lección Activa</span>
                 </div>
 
-                <!-- Tarjeta Principal de Contenido -->
                 <article class="card shadow-sm border-0 p-4 p-md-5 bg-white rounded-4" id="contenidoLeccion">
-                    
+
                     <h1 class="display-5 fw-bold text-dark mb-4" id="tituloLeccion">
                         Cargando lección...
                     </h1>
@@ -52,10 +44,8 @@
                         Por favor espera un momento mientras preparamos tu clase.
                     </p>
 
-                    <!-- Contenedor dinámico -->
                     <div id="cuerpoDinamicoLeccion"></div>
 
-                    <!-- Navegación a la Práctica / Evaluación -->
                     <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-5 pt-3 border-top">
                         <a href="dashboard.html" class="btn btn-outline-secondary btn-lg py-3 px-4 fs-5 rounded-pill">
                             <i class="bi bi-arrow-left me-1"></i> Ir al Panel
@@ -71,20 +61,16 @@
         </div>
     </main>
 
-    <!-- Pie de página -->
     <footer class="bg-white border-top py-3 text-center text-muted fs-6 mt-auto">
         <div class="container">
             <p class="mb-0">Plataforma de Alfabetización Digital - UTS</p>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- LÓGICA DIRECTA DE LA LECCIÓN -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Obtener ID del módulo desde la URL (?id=X)
             const params = new URLSearchParams(window.location.search);
             const moduloId = parseInt(params.get('id')) || 1;
 
@@ -94,12 +80,10 @@
             const cuerpoDinamico = document.getElementById('cuerpoDinamicoLeccion');
             const btnIrAPractica = document.getElementById('btnIrAPractica');
 
-            // Actualizar enlace hacia el ejercicio correspondiente
             if (btnIrAPractica) {
                 btnIrAPractica.href = `ejercicio.html?id=${moduloId}`;
             }
 
-           // Diccionario completo con los 7 módulos de formación
            const modulos = {
                 1: {
                     badge: 'Módulo 1: Manejo Básico de Dispositivos',
@@ -310,7 +294,7 @@
                             </h2>
                             <div class="card bg-white border-2 border-primary-subtle p-4 mb-4 rounded-4 shadow-sm">
                                 <p class="fs-5 text-muted mb-3">Para instalar cualquier aplicación en tu celular, utiliza siempre las tiendas oficiales:</p>
-                                
+
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <div class="p-3 bg-light rounded-3 border h-100">
@@ -380,14 +364,12 @@
                 }
             };
 
-            // 3. Renderizar el módulo seleccionado
             const contenido = modulos[moduloId] || modulos[1];
             badgeModulo.textContent = contenido.badge;
             tituloLeccion.textContent = contenido.titulo;
             descripcionLeccion.textContent = contenido.descripcion;
             cuerpoDinamico.innerHTML = contenido.html;
 
-            // 4. Accesibilidad: Aumentar y Disminuir Letra
             const btnAumentar = document.getElementById('btnAumentarTexto');
             const btnDisminuir = document.getElementById('btnDisminuirTexto');
             const contenedorTexto = document.getElementById('contenidoLeccion');

@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ==========================================
-    // 1. TAMAÑO DE FUENTE DINÁMICO (A+ / A-)
-    // ==========================================
     const tamanos = ['fuente-sm', 'fuente-md', 'fuente-lg', 'fuente-xl'];
-    let indiceActual = 1; // 'fuente-md' es el tamaño normal por defecto
+    let indiceActual = 1;
 
-    // Cargar preferencia guardada
     const tamanoGuardado = localStorage.getItem('tamanoFuente');
     if (tamanoGuardado && tamanos.includes(tamanoGuardado)) {
         indiceActual = tamanos.indexOf(tamanoGuardado);
@@ -36,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnRestablecer) {
         btnRestablecer.addEventListener('click', () => {
-            indiceActual = 1; // Normal
+            indiceActual = 1;
             guardarYAplicarTamano();
         });
     }
@@ -52,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add(clase);
     }
 
-    // ==========================================
-    // 2. MODO ALTO CONTRASTE (WCAG)
-    // ==========================================
     const estadoContraste = localStorage.getItem('modoAltoContraste');
     if (estadoContraste === 'activo') {
         document.body.classList.add('alto-contraste');
