@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Práctica Interactiva - Alfabetización Digital</title>
-    
-    <!-- Bootstrap 5 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Iconos de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- Estilos personalizados -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
 
-    <!-- Encabezado con retorno a la Lección -->
     <header class="bg-white border-bottom py-3">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="leccion.html" id="btnVolverLeccion" class="btn btn-outline-primary btn-lg fs-5">
@@ -26,20 +22,17 @@
         </div>
     </header>
 
-    <!-- Contenido Principal del Ejercicio -->
     <main class="container my-auto py-4">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-9">
-                
+
                 <div class="card shadow-sm border-0 p-4 p-md-5 bg-white rounded-4">
-                    
-                    <!-- Indicador de pregunta -->
+
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="badgePregunta">Módulo 1 • Ejercicio Práctico</span>
                         <span class="text-muted fs-6">Pregunta de opción múltiple</span>
                     </div>
 
-                    <!-- Enunciado de la Pregunta -->
                     <h1 class="h2 fw-bold text-dark mb-4" id="enunciadoPregunta">
                         Cargando pregunta...
                     </h1>
@@ -48,15 +41,31 @@
                         Haz clic sobre la opción que consideres correcta:
                     </p>
 
-                    <!-- Lista Dinámica de Opciones -->
                     <div class="d-grid gap-3" id="contenedorOpciones">
-                        <!-- Se insertan dinámicamente según el módulo -->
                     </div>
 
-                    <!-- Aviso de guardado del progreso (espera o error) -->
                     <div id="avisoProgreso" class="mt-4 d-none"></div>
 
-                    <!-- Cuadro de Retroalimentación -->
+                    <div id="cajaFallo" role="alert" class="mt-4 p-4 rounded-4 bg-warning-subtle text-dark border border-2 border-warning d-none">
+                        <h2 class="h4 fw-bold mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+                            Atención: esta no es la respuesta correcta
+                        </h2>
+                        <p class="fs-5 mb-3" id="textoFallo"></p>
+                        <p class="fs-5 mb-4">
+                            <i class="bi bi-lightbulb-fill me-2" aria-hidden="true"></i>
+                            <strong>Pista:</strong> <span id="textoPista"></span>
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="leccion.html" id="btnRepasar" class="btn btn-outline-primary btn-lg fs-5 rounded-pill px-4">
+                                <i class="bi bi-book me-2" aria-hidden="true"></i> Repasar la lección
+                            </a>
+                            <button type="button" id="btnOtraVez" class="btn btn-primary btn-lg fs-5 rounded-pill px-4">
+                                <i class="bi bi-arrow-repeat me-2" aria-hidden="true"></i> Intentar otra vez
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="cajaRetroalimentacion" class="mt-4 p-4 rounded-4 d-none">
                         <div class="d-flex align-items-start">
                             <i id="iconoRetro" class="fs-1 me-3"></i>
@@ -67,7 +76,6 @@
                         </div>
                     </div>
 
-                    <!-- Botones de Navegación Final -->
                     <div id="botonesAccionFinal" class="mt-4 pt-3 border-top d-none justify-content-end">
                         <a href="dashboard.html" class="btn btn-primary btn-lg py-3 px-5 fs-4 fw-semibold rounded-pill shadow-sm">
                             <i class="bi bi-check-all me-2"></i> Completar y Volver al Panel
@@ -80,27 +88,90 @@
         </div>
     </main>
 
-    <!-- Pie de página -->
     <footer class="bg-white border-top py-3 text-center text-muted fs-6 mt-auto">
         <div class="container">
             <p class="mb-0">Plataforma de Alfabetización Digital - UTS</p>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-   <!-- LÓGICA INTERACTIVA Y CONEXIÓN CON FLASK / SQLITE -->
    <script>
     document.addEventListener('DOMContentLoaded', () => {
         const API_URL = 'http://127.0.0.1:5000';
         const token = localStorage.getItem('token');
 
-        // 1. Obtener ID del módulo actual
-        const params = new URLSearchParams(window.location.search);
-        const moduloId = parseInt(params.get('id')) || 1;
+        const preguntasPorModulo = {
+            1: {
+                leccion: 1, pregunta: 1,
+                enunciado: '¿Cuál botón del ratón (mouse) utilizas principalmente para seleccionar cosas y pulsar botones en la pantalla?',
+                opciones: [
+                    { letra: 'A', texto: 'El botón izquierdo (con el dedo índice).' },
+                    { letra: 'B', texto: 'El botón derecho (con el dedo medio).' },
+                    { letra: 'C', texto: 'La tecla de la barra espaciadora.' }
+                ]
+            },
+            2: {
+                leccion: 1, pregunta: 1,
+                enunciado: 'Para buscar información en internet sobre recetas o noticias, ¿dónde debes escribir lo que buscas?',
+                opciones: [
+                    { letra: 'A', texto: 'En la papelera de reciclaje de la computadora.' },
+                    { letra: 'B', texto: 'En la barra de búsqueda de tu navegador web.' },
+                    { letra: 'C', texto: 'En la calculadora del computador.' }
+                ]
+            },
+            3: {
+                leccion: 1, pregunta: 1,
+                enunciado: 'Si recibes una llamada o mensaje diciendo que ganaste un premio y te piden tu contraseña bancaria, ¿qué debes hacer?',
+                opciones: [
+                    { letra: 'A', texto: 'Entregar la contraseña rápido para no perder el premio.' },
+                    { letra: 'B', texto: 'Desconfiar, no dar ningún dato y colgar de inmediato.' },
+                    { letra: 'C', texto: 'Escribir la contraseña en un mensaje de texto.' }
+                ]
+            },
+            4: {
+                leccion: 1, pregunta: 1,
+                enunciado: 'Al momento de solicitar una cita médica o consultar un certificado en línea, ¿qué dato básico debes tener siempre a la mano?',
+                opciones: [
+                    { letra: 'A', texto: 'Tu documento de identidad (cédula) y un teléfono de contacto.' },
+                    { letra: 'B', texto: 'El recibo de la luz del mes pasado.' },
+                    { letra: 'C', texto: 'El correo electrónico de un vecino.' }
+                ]
+            },
+            5: {
+                leccion: 1, pregunta: 1,
+                enunciado: '¿Cómo puedes enviar un mensaje de voz a un familiar por WhatsApp?',
+                opciones: [
+                    { letra: 'A', texto: 'Apagando el celular y volviéndolo a encender.' },
+                    { letra: 'B', texto: 'Manteniendo presionado el icono del micrófono mientras hablas.' },
+                    { letra: 'C', texto: 'Pulsando tres veces la pantalla con dos dedos.' }
+                ]
+            },
+            6: {
+                leccion: 1, pregunta: 1,
+                enunciado: 'Por tu seguridad financiera, ¿dónde NO deberías ingresar a revisar tus cuentas bancarias o billeteras digitales?',
+                opciones: [
+                    { letra: 'A', texto: 'Desde redes Wi-Fi públicas y abiertas (como parques o plazas).' },
+                    { letra: 'B', texto: 'Desde el internet de tu casa.' },
+                    { letra: 'C', texto: 'Desde tus datos móviles personales.' }
+                ]
+            },
+            7: {
+                leccion: 1, pregunta: 1,
+                enunciado: '¿Cuál es el lugar seguro para buscar e instalar aplicaciones en un teléfono?',
+                opciones: [
+                    { letra: 'A', texto: 'Google Play Store o App Store (tiendas oficiales).' },
+                    { letra: 'B', texto: 'Un enlace raro que llegó por mensaje de texto de un desconocido.' },
+                    { letra: 'C', texto: 'Una página web con avisos parpadeantes que dice que tienes un virus.' }
+                ]
+            }
+        };
 
-        // Enlace de retorno
+        const params = new URLSearchParams(window.location.search);
+        const idSolicitado = parseInt(params.get('id'));
+        const moduloId = preguntasPorModulo[idSolicitado] ? idSolicitado : 1;
+        const ejercicioActual = preguntasPorModulo[moduloId];
+
         const btnVolver = document.getElementById('btnVolverLeccion');
         if (btnVolver) {
             btnVolver.href = `leccion.html?id=${moduloId}`;
@@ -111,94 +182,18 @@
             textoEncabezado.innerHTML = `<i class="bi bi-pencil-square text-success me-1"></i> Práctica del Módulo ${moduloId}`;
         }
 
-        // 2. Banco de preguntas pedagógicas (1 a 7)
-        const preguntasPorModulo = {
-            1: {
-                enunciado: '¿Cuál botón del ratón (mouse) utilizas principalmente para seleccionar cosas y pulsar botones en la pantalla?',
-                opciones: [
-                    { letra: 'A', texto: 'El botón izquierdo (con el dedo índice).', correcta: true },
-                    { letra: 'B', texto: 'El botón derecho (con el dedo medio).', correcta: false },
-                    { letra: 'C', texto: 'La tecla de la barra espaciadora.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Excelente! El botón izquierdo es el principal y sirve para interactuar, seleccionar y confirmar.',
-                explicacionError: 'Recuerda que el botón izquierdo (dedo índice) es el principal. El derecho se usa para opciones secundarias.'
-            },
-            2: {
-                enunciado: 'Para buscar información en internet sobre recetas o noticias, ¿dónde debes escribir lo que buscas?',
-                opciones: [
-                    { letra: 'A', texto: 'En la papelera de reciclaje de la computadora.', correcta: false },
-                    { letra: 'B', texto: 'En la barra de búsqueda de tu navegador web.', correcta: true },
-                    { letra: 'C', texto: 'En la calculadora del computador.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Muy bien! En la barra de búsqueda del navegador puedes escribir palabras clave y presionar ENTER.',
-                explicacionError: 'La búsqueda de información se hace dentro del navegador web (como Chrome o Edge) en su barra de búsqueda.'
-            },
-            3: {
-                enunciado: 'Si recibes una llamada o mensaje diciendo que ganaste un premio y te piden tu contraseña bancaria, ¿qué debes hacer?',
-                opciones: [
-                    { letra: 'A', texto: 'Entregar la contraseña rápido para no perder el premio.', correcta: false },
-                    { letra: 'B', texto: 'Desconfiar, no dar ningún dato y colgar de inmediato.', correcta: true },
-                    { letra: 'C', texto: 'Escribir la contraseña en un mensaje de texto.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Perfecto! Ningún banco ni entidad confiable te pedirá contraseñas personales. Nunca las compartas.',
-                explicacionError: 'Nunca debes compartir tus claves. Las entidades reales jamás te pedirán contraseñas por llamada o mensaje.'
-            },
-            4: {
-                enunciado: 'Al momento de solicitar una cita médica o consultar un certificado en línea, ¿qué dato básico debes tener siempre a la mano?',
-                opciones: [
-                    { letra: 'A', texto: 'Tu documento de identidad (cédula) y un teléfono de contacto.', correcta: true },
-                    { letra: 'B', texto: 'El recibo de la luz del mes pasado.', correcta: false },
-                    { letra: 'C', texto: 'El correo electrónico de un vecino.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Correcto! Tu documento de identidad es la llave para consultar turnos, trámites y citas en portales oficiales.',
-                explicacionError: 'Para trámites oficiales lo esencial es tu documento de identificación personal y tu propio contacto.'
-            },
-            5: {
-                enunciado: '¿Cómo puedes enviar un mensaje de voz a un familiar por WhatsApp?',
-                opciones: [
-                    { letra: 'A', texto: 'Apagando el celular y volviéndolo a encender.', correcta: false },
-                    { letra: 'B', texto: 'Manteniendo presionado el icono del micrófono mientras hablas.', correcta: true },
-                    { letra: 'C', texto: 'Pulsando tres veces la pantalla con dos dedos.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Así es! Mantienes presionado el botón del micrófono verde, hablas tu mensaje y al soltarlo se envía.',
-                explicacionError: 'Para grabar una nota de voz debes mantener pulsado el icono del micrófono que aparece junto al teclado.'
-            },
-            6: {
-                enunciado: 'Por tu seguridad financiera, ¿dónde NO deberías ingresar a revisar tus cuentas bancarias o billeteras digitales?',
-                opciones: [
-                    { letra: 'A', texto: 'Desde redes Wi-Fi públicas y abiertas (como parques o plazas).', correcta: true },
-                    { letra: 'B', texto: 'Desde el internet de tu casa.', correcta: false },
-                    { letra: 'C', texto: 'Desde tus datos móviles personales.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Exacto! Las redes públicas de la calle no están protegidas y pueden comprometer tu dinero o tus claves.',
-                explicacionError: 'Evita siempre hacer pagos o abrir tu banco en redes Wi-Fi públicas de la calle, pues no son seguras.'
-            },
-            7: {
-                enunciado: '¿Cuál es el lugar seguro para buscar e instalar aplicaciones en un teléfono?',
-                opciones: [
-                    { letra: 'A', texto: 'Google Play Store o App Store (tiendas oficiales).', correcta: true },
-                    { letra: 'B', texto: 'Un enlace raro que llegó por mensaje de texto de un desconocido.', correcta: false },
-                    { letra: 'C', texto: 'Una página web con avisos parpadeantes que dice que tienes un virus.', correcta: false }
-                ],
-                explicacionCorrecta: '¡Excelente! Las tiendas oficiales verifican que las aplicaciones estén libres de amenazas antes de que las instales.',
-                explicacionError: 'Usa siempre las tiendas oficiales y nunca descargues archivos desde enlaces sospechosos.'
-            }
-        };
-
-        const ejercicioActual = preguntasPorModulo[moduloId] || preguntasPorModulo[1];
-
-        // 3. Pintar pregunta y opciones
         document.getElementById('badgePregunta').textContent = `Módulo ${moduloId} • Ejercicio Práctico`;
-        document.getElementById('enunciadoPregunta').textContent = ejercicioActual.enunciado;
+        const enunciadoPregunta = document.getElementById('enunciadoPregunta');
+        enunciadoPregunta.textContent = ejercicioActual.enunciado;
+        enunciadoPregunta.setAttribute('tabindex', '-1');
 
         const contenedorOpciones = document.getElementById('contenedorOpciones');
         contenedorOpciones.innerHTML = '';
 
         ejercicioActual.opciones.forEach((opcion) => {
             const btn = document.createElement('button');
-            btn.type = 'button'; // Evita recarga involuntaria de página
+            btn.type = 'button';
             btn.className = 'btn btn-outline-primary btn-lg py-3 px-4 fs-5 text-start rounded-4 opcion-btn';
-            btn.setAttribute('data-correcta', opcion.correcta);
             btn.innerHTML = `<span class="fw-bold me-2">${opcion.letra}.</span> ${opcion.texto}`;
             contenedorOpciones.appendChild(btn);
         });
@@ -208,47 +203,118 @@
         const mensajeRetro = document.getElementById('mensajeRetro');
         const iconoRetro = document.getElementById('iconoRetro');
         const botonesFinal = document.getElementById('botonesAccionFinal');
+        const avisoProgreso = document.getElementById('avisoProgreso');
 
         const botonesOpcion = document.querySelectorAll('.opcion-btn');
+        const cajaFallo = document.getElementById('cajaFallo');
+        const textoFallo = document.getElementById('textoFallo');
+        const textoPista = document.getElementById('textoPista');
+        const btnOtraVez = document.getElementById('btnOtraVez');
+        const btnRepasar = document.getElementById('btnRepasar');
 
-        botonesOpcion.forEach(boton => {
-                boton.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
+        btnRepasar.href = `leccion.html?id=${moduloId}`;
 
-                    const esCorrecta = boton.getAttribute('data-correcta') === 'true';
+        let explicacionCorrecta = '';
 
-                    if (esCorrecta) {
-                        // Bloquear todas las opciones
-                        botonesOpcion.forEach(b => {
-                            b.disabled = true;
-                            b.classList.remove('btn-outline-primary');
-                        });
-                        boton.classList.add('btn-success');
-
-                        // Guardar el progreso; la felicitación solo sale si el servidor confirma
-                        await guardarYMostrar();
-                    } else {
-                        // Respuesta incorrecta
-                        boton.classList.remove('btn-outline-primary');
-                        boton.classList.add('btn-danger');
-
-                        cajaRetro.className = 'mt-4 p-4 rounded-4 bg-danger-subtle text-danger-emphasis border border-2 border-danger d-block';
-                        iconoRetro.className = 'bi bi-exclamation-triangle-fill text-danger fs-1 me-3';
-                        tituloRetro.textContent = '¡Casi lo logras! Vamos a repasar';
-                        mensajeRetro.textContent = ejercicioActual.explicacionError;
-
-                        // Permitir intentar de nuevo tras 2 segundos
-                        setTimeout(() => {
-                            boton.classList.remove('btn-danger');
-                            boton.classList.add('btn-outline-primary');
-                        }, 2000);
-                    }
-                });
+        function bloquearOpciones(bloquear) {
+            botonesOpcion.forEach(b => {
+                b.disabled = bloquear;
+                if (bloquear) {
+                    b.setAttribute('aria-disabled', 'true');
+                } else {
+                    b.removeAttribute('aria-disabled');
+                }
             });
+        }
 
-        // Devuelve 'ok', 'sesion' (falta o falla la sesión) o 'error' (servidor o conexión)
+        function marcarOpcion(boton, esCorrecta) {
+            boton.classList.remove('btn-outline-primary');
+            boton.classList.add(esCorrecta ? 'btn-success' : 'btn-danger');
+            const marca = document.createElement('span');
+            marca.className = 'marca-opcion d-block fw-bold mt-2';
+            marca.innerHTML = esCorrecta
+                ? '<i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>Tu respuesta: correcta'
+                : '<i class="bi bi-x-circle-fill me-2" aria-hidden="true"></i>Tu respuesta: no es correcta';
+            boton.appendChild(marca);
+        }
+
+        function reiniciarEjercicio() {
+            botonesOpcion.forEach(b => {
+                b.classList.remove('btn-success', 'btn-danger');
+                b.classList.add('btn-outline-primary');
+                const marca = b.querySelector('.marca-opcion');
+                if (marca) marca.remove();
+            });
+            cajaFallo.classList.add('d-none');
+            avisoProgreso.className = 'mt-4 d-none';
+            avisoProgreso.innerHTML = '';
+            bloquearOpciones(false);
+            enunciadoPregunta.focus();
+        }
+
+        function mostrarFallo(datos) {
+            textoFallo.textContent = datos.explicacion;
+            textoPista.textContent = datos.pista;
+            cajaFallo.classList.remove('d-none');
+        }
+
+        async function revisarRespuesta(opcion) {
+            if (!token) return { estado: 'sesion' };
+            try {
+                const res = await fetch(`${API_URL}/intentos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        estudio_id: moduloId,
+                        leccion: ejercicioActual.leccion,
+                        pregunta: ejercicioActual.pregunta,
+                        opcion: opcion.letra
+                    })
+                });
+                if (res.status === 201) return { estado: 'ok', datos: await res.json() };
+                if (res.status === 401 || res.status === 422) return { estado: 'sesion' };
+                return { estado: 'error' };
+            } catch (error) {
+                console.error('Error al revisar la respuesta:', error);
+                return { estado: 'error' };
+            }
+        }
+
+        botonesOpcion.forEach((boton, indice) => {
+            boton.addEventListener('click', async () => {
+                const opcion = ejercicioActual.opciones[indice];
+
+                bloquearOpciones(true);
+                mostrarGuardando('Revisando tu respuesta…');
+
+                const resultado = await revisarRespuesta(opcion);
+                if (resultado.estado === 'sesion') {
+                    mostrarAvisoSesion();
+                    return;
+                }
+                if (resultado.estado === 'error') {
+                    mostrarAvisoRevision();
+                    return;
+                }
+
+                avisoProgreso.className = 'mt-4 d-none';
+                avisoProgreso.innerHTML = '';
+                marcarOpcion(boton, resultado.datos.correcta);
+
+                if (resultado.datos.correcta) {
+                    explicacionCorrecta = resultado.datos.explicacion;
+                    await guardarYMostrar();
+                } else {
+                    mostrarFallo(resultado.datos);
+                }
+            });
+        });
+
+        btnOtraVez.addEventListener('click', reiniciarEjercicio);
+
         async function registrarProgresoBackend(idEstudio) {
             if (!token) return 'sesion';
             try {
@@ -261,7 +327,6 @@
                     body: JSON.stringify({ estudio_id: idEstudio })
                 });
                 if (res.status === 200 || res.status === 201) return 'ok';
-                // 401: sin sesión o vencida. 422: token dañado (Flask-JWT-Extended)
                 if (res.status === 401 || res.status === 422) return 'sesion';
                 return 'error';
             } catch (error) {
@@ -270,15 +335,12 @@
             }
         }
 
-        const avisoProgreso = document.getElementById('avisoProgreso');
-
-        function mostrarGuardando() {
-            // Oculta la retroalimentación de un intento incorrecto previo
+        function mostrarGuardando(mensaje = 'Guardando tu avance…') {
             cajaRetro.className = 'mt-4 p-4 rounded-4 d-none';
             avisoProgreso.className = 'mt-4 p-4 rounded-4 bg-light border border-2 fs-5 d-block';
             avisoProgreso.removeAttribute('role');
             avisoProgreso.setAttribute('aria-live', 'polite');
-            avisoProgreso.innerHTML = '<i class="bi bi-hourglass-split me-2" aria-hidden="true"></i> Guardando tu avance…';
+            avisoProgreso.innerHTML = `<i class="bi bi-hourglass-split me-2" aria-hidden="true"></i> ${mensaje}`;
         }
 
         function mostrarAviso(mensaje, htmlBoton) {
@@ -300,6 +362,50 @@
             );
         }
 
+        async function apiResponde() {
+            const control = new AbortController();
+            const temporizador = setTimeout(() => control.abort(), 5000);
+            try {
+                const res = await fetch(`${API_URL}/`, { signal: control.signal });
+                return res.ok;
+            } catch (error) {
+                console.error('La API no responde:', error);
+                return false;
+            } finally {
+                clearTimeout(temporizador);
+            }
+        }
+
+        function mostrarAvisoRevision() {
+            bloquearOpciones(true);
+            mostrarAviso(
+                'en este momento tenemos un problema y no podemos revisar tu respuesta. No es culpa tuya; estamos trabajando para solucionarlo. Intenta de nuevo en unos minutos.',
+                '<button type="button" id="btnReintentarRevision" class="btn btn-primary btn-lg fs-5 rounded-pill px-4">Intentar de nuevo</button>'
+            );
+            const btnReintentarRevision = document.getElementById('btnReintentarRevision');
+            btnReintentarRevision.addEventListener('click', async () => {
+                btnReintentarRevision.disabled = true;
+                mostrarGuardando('Comprobando la conexión…');
+                if (await apiResponde()) {
+                    reiniciarEjercicio();
+                } else {
+                    mostrarAvisoRevision();
+                }
+            });
+        }
+
+        bloquearOpciones(true);
+        mostrarGuardando('Comprobando la conexión…');
+        apiResponde().then(responde => {
+            if (responde) {
+                avisoProgreso.className = 'mt-4 d-none';
+                avisoProgreso.innerHTML = '';
+                bloquearOpciones(false);
+            } else {
+                mostrarAvisoRevision();
+            }
+        });
+
         function mostrarAvisoError() {
             mostrarAviso(
                 'No pudimos guardar tu avance. Revisa tu conexión e inténtalo de nuevo.',
@@ -307,7 +413,7 @@
             );
             const btnReintentar = document.getElementById('btnReintentar');
             btnReintentar.addEventListener('click', () => {
-                btnReintentar.disabled = true; // Evita doble envío
+                btnReintentar.disabled = true;
                 guardarYMostrar();
             });
         }
@@ -319,7 +425,7 @@
             cajaRetro.className = 'mt-4 p-4 rounded-4 bg-success-subtle text-success-emphasis border border-2 border-success d-block';
             iconoRetro.className = 'bi bi-check-circle-fill text-success fs-1 me-3';
             tituloRetro.textContent = '¡Excelente! Respuesta Correcta';
-            mensajeRetro.textContent = ejercicioActual.explicacionCorrecta;
+            mensajeRetro.textContent = explicacionCorrecta;
 
             if (botonesFinal) {
                 botonesFinal.classList.remove('d-none');
@@ -329,7 +435,6 @@
 
         async function guardarYMostrar() {
             mostrarGuardando();
-            // El mensaje de espera se ve al menos 1 segundo, aunque la respuesta sea inmediata
             const [resultado] = await Promise.all([
                 registrarProgresoBackend(moduloId),
                 new Promise(resolver => setTimeout(resolver, 1000))
