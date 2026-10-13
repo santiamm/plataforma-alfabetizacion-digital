@@ -53,6 +53,9 @@
                         <!-- Se insertan dinámicamente según el módulo -->
                     </div>
 
+                    <!-- Aviso de guardado del progreso (espera o error) -->
+                    <div id="avisoProgreso" class="mt-4 d-none"></div>
+
                     <!-- Cuadro de Retroalimentación -->
                     <div id="cajaRetroalimentacion" class="mt-4 p-4 rounded-4 d-none">
                         <div class="d-flex align-items-start">
@@ -224,20 +227,8 @@
                         });
                         boton.classList.add('btn-success');
 
-                        // Desplegar retroalimentación de éxito de forma permanente
-                        cajaRetro.className = 'mt-4 p-4 rounded-4 bg-success-subtle text-success-emphasis border border-2 border-success d-block';
-                        iconoRetro.className = 'bi bi-check-circle-fill text-success fs-1 me-3';
-                        tituloRetro.textContent = '¡Excelente! Respuesta Correcta';
-                        mensajeRetro.textContent = ejercicioActual.explicacionCorrecta;
-
-                        // Registrar progreso en la base de datos
-                        await registrarProgresoBackend(moduloId);
-
-                        // Mostrar el botón de regreso al panel
-                        if (botonesFinal) {
-                            botonesFinal.classList.remove('d-none');
-                            botonesFinal.classList.add('d-flex');
-                        }
+                        // Guardar el progreso; la felicitación solo sale si el servidor confirma
+                        await guardarYMostrar();
                     } else {
                         // Respuesta incorrecta
                         boton.classList.remove('btn-outline-primary');
@@ -257,10 +248,11 @@
                 });
             });
 
+        // Devuelve 'ok', 'sesion' (falta o falla la sesión) o 'error' (servidor o conexión)
         async function registrarProgresoBackend(idEstudio) {
-            if (!token) return;
+            if (!token) return 'sesion';
             try {
-                await fetch(`${API_URL}/progreso`, {
+                const res = await fetch(`${API_URL}/progreso`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -268,8 +260,86 @@
                     },
                     body: JSON.stringify({ estudio_id: idEstudio })
                 });
+                if (res.status === 200 || res.status === 201) return 'ok';
+                // 401: sin sesión o vencida. 422: token dañado (Flask-JWT-Extended)
+                if (res.status === 401 || res.status === 422) return 'sesion';
+                return 'error';
             } catch (error) {
                 console.error('Error al guardar el progreso:', error);
+                return 'error';
+            }
+        }
+
+        const avisoProgreso = document.getElementById('avisoProgreso');
+
+        function mostrarGuardando() {
+            // Oculta la retroalimentación de un intento incorrecto previo
+            cajaRetro.className = 'mt-4 p-4 rounded-4 d-none';
+            avisoProgreso.className = 'mt-4 p-4 rounded-4 bg-light border border-2 fs-5 d-block';
+            avisoProgreso.removeAttribute('role');
+            avisoProgreso.setAttribute('aria-live', 'polite');
+            avisoProgreso.innerHTML = '<i class="bi bi-hourglass-split me-2" aria-hidden="true"></i> Guardando tu avance…';
+        }
+
+        function mostrarAviso(mensaje, htmlBoton) {
+            avisoProgreso.className = 'mt-4 p-4 rounded-4 bg-warning-subtle text-dark border border-2 border-warning fs-5 d-block';
+            avisoProgreso.removeAttribute('aria-live');
+            avisoProgreso.setAttribute('role', 'alert');
+            avisoProgreso.innerHTML = `
+                <p class="mb-3 fw-semibold">
+                    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+                    Atención: ${mensaje}
+                </p>
+                ${htmlBoton}`;
+        }
+
+        function mostrarAvisoSesion() {
+            mostrarAviso(
+                'Tu sesión terminó. Inicia sesión de nuevo para guardar tu avance.',
+                '<a href="login.html" class="btn btn-primary btn-lg fs-5 rounded-pill px-4">Iniciar sesión</a>'
+            );
+        }
+
+        function mostrarAvisoError() {
+            mostrarAviso(
+                'No pudimos guardar tu avance. Revisa tu conexión e inténtalo de nuevo.',
+                '<button type="button" id="btnReintentar" class="btn btn-primary btn-lg fs-5 rounded-pill px-4">Intentar de nuevo</button>'
+            );
+            const btnReintentar = document.getElementById('btnReintentar');
+            btnReintentar.addEventListener('click', () => {
+                btnReintentar.disabled = true; // Evita doble envío
+                guardarYMostrar();
+            });
+        }
+
+        function mostrarExito() {
+            avisoProgreso.className = 'mt-4 d-none';
+            avisoProgreso.innerHTML = '';
+
+            cajaRetro.className = 'mt-4 p-4 rounded-4 bg-success-subtle text-success-emphasis border border-2 border-success d-block';
+            iconoRetro.className = 'bi bi-check-circle-fill text-success fs-1 me-3';
+            tituloRetro.textContent = '¡Excelente! Respuesta Correcta';
+            mensajeRetro.textContent = ejercicioActual.explicacionCorrecta;
+
+            if (botonesFinal) {
+                botonesFinal.classList.remove('d-none');
+                botonesFinal.classList.add('d-flex');
+            }
+        }
+
+        async function guardarYMostrar() {
+            mostrarGuardando();
+            // El mensaje de espera se ve al menos 1 segundo, aunque la respuesta sea inmediata
+            const [resultado] = await Promise.all([
+                registrarProgresoBackend(moduloId),
+                new Promise(resolver => setTimeout(resolver, 1000))
+            ]);
+            if (resultado === 'ok') {
+                mostrarExito();
+            } else if (resultado === 'sesion') {
+                mostrarAvisoSesion();
+            } else {
+                mostrarAvisoError();
             }
         }
     });
