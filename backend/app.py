@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, datetime, timezone
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +11,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-# Reemplaza la línea: CORS(app)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///database.db')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'clave_respaldo_uts_2026')
@@ -44,17 +43,36 @@ class Progreso(db.Model):
     estudio_id = db.Column(db.Integer, db.ForeignKey('estudio.id'), nullable=False)
     completado = db.Column(db.Boolean, default=False)
 
-# RUTA REGISTRO (soporta /registro y /api/registro)
+class Pregunta(db.Model):
+    __table_args__ = (db.UniqueConstraint('estudio_id', 'leccion', 'pregunta', name='uq_pregunta_estudio_leccion_pregunta'),)
+    id = db.Column(db.Integer, primary_key=True)
+    estudio_id = db.Column(db.Integer, db.ForeignKey('estudio.id'), nullable=False)
+    leccion = db.Column(db.Integer, nullable=False)
+    pregunta = db.Column(db.Integer, nullable=False)
+    opcion_correcta = db.Column(db.String(5), nullable=False)
+    explicacion_correcta = db.Column(db.Text, nullable=False)
+    pista = db.Column(db.Text, nullable=False)
+    explicaciones_incorrectas = db.Column(db.JSON, nullable=False)
+
+class Intento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    estudio_id = db.Column(db.Integer, db.ForeignKey('estudio.id'), nullable=False)
+    leccion = db.Column(db.Integer, nullable=False)
+    pregunta = db.Column(db.Integer, nullable=False)
+    opcion = db.Column(db.String(5), nullable=False)
+    correcta = db.Column(db.Boolean, nullable=False)
+    fecha = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
 @app.route('/registro', methods=['POST'])
 @app.route('/api/registro', methods=['POST'])
 def registro():
     datos = request.get_json() or {}
-    
-    # Soporta nombre + apellido o nombre completo
+
     nombre_raw = datos.get('nombre', '').strip()
     apellido_raw = datos.get('apellido', '').strip()
     nombre_completo = f"{nombre_raw} {apellido_raw}".strip() if apellido_raw else nombre_raw
-    
+
     telefono = datos.get('telefono', '').strip()
     correo = datos.get('correo', '').strip()
     password = datos.get('password', '').strip()
@@ -62,7 +80,6 @@ def registro():
     if not nombre_completo or not password:
         return jsonify({"mensaje": "Nombre y contraseña son obligatorios."}), 400
 
-    # Si no ingresó teléfono pero sí correo, usamos el correo como identificador
     if not telefono:
         telefono = correo
 
@@ -82,7 +99,6 @@ def registro():
 
     return jsonify({"mensaje": "Usuario registrado con éxito"}), 201
 
-# RUTA LOGIN (soporta /login y /api/login)
 @app.route('/', methods=['GET'])
 def index():
     return {"status": "API del proyecto funcionando correctamente"}
@@ -96,7 +112,6 @@ def login():
     if not identificador or not password:
         return jsonify({"mensaje": "Ingresa tu correo o teléfono y tu contraseña."}), 400
 
-    # Busca coincidencia por correo o por teléfono
     usuario = Usuario.query.filter(
         (Usuario.telefono == identificador) | (Usuario.correo == identificador)
     ).first()
@@ -135,7 +150,6 @@ def registrar_progreso():
     datos = request.get_json(silent=True) or {}
     estudio_id = datos.get('estudio_id')
 
-    # bool es subclase de int en Python; se excluye de forma explícita
     if not isinstance(estudio_id, int) or isinstance(estudio_id, bool):
         return jsonify({"mensaje": "estudio_id es obligatorio y debe ser un número entero."}), 400
 
@@ -147,11 +161,13 @@ def registrar_progreso():
     if ya_completado:
         return jsonify({"mensaje": "Módulo ya completado."}), 200
 
+    if not Intento.query.filter_by(usuario_id=usuario_id, estudio_id=estudio_id, correcta=True).first():
+        return jsonify({"mensaje": "Primero debes responder correctamente el ejercicio de este módulo."}), 403
+
     db.session.add(Progreso(usuario_id=usuario_id, estudio_id=estudio_id, completado=True))
     try:
         db.session.commit()
     except IntegrityError:
-        # Dos peticiones simultáneas: la restricción única frena la segunda
         db.session.rollback()
         return jsonify({"mensaje": "Módulo ya completado."}), 200
     return jsonify({"mensaje": "Progreso guardado correctamente"}), 201
@@ -163,6 +179,67 @@ def obtener_progreso():
     usuario_id_actual = get_jwt_identity()
     progresos = Progreso.query.filter_by(usuario_id=int(usuario_id_actual)).all()
     return jsonify([{"id": p.id, "estudio_id": p.estudio_id, "completado": p.completado} for p in progresos]), 200
+
+def _es_entero_positivo(valor):
+    return isinstance(valor, int) and not isinstance(valor, bool) and valor >= 1
+
+@app.route('/intentos', methods=['POST'])
+@app.route('/api/intentos', methods=['POST'])
+@jwt_required()
+def registrar_intento():
+    datos = request.get_json(silent=True) or {}
+    estudio_id = datos.get('estudio_id')
+    leccion = datos.get('leccion')
+    pregunta = datos.get('pregunta')
+    opcion = datos.get('opcion')
+
+    if not all(_es_entero_positivo(v) for v in (estudio_id, leccion, pregunta)):
+        return jsonify({"mensaje": "estudio_id, leccion y pregunta son obligatorios y deben ser enteros desde 1."}), 400
+
+    if not isinstance(opcion, str) or not 1 <= len(opcion.strip()) <= 5:
+        return jsonify({"mensaje": "opcion es obligatoria y debe ser un texto de 1 a 5 caracteres."}), 400
+    opcion = opcion.strip()
+
+    if not db.session.get(Estudio, estudio_id):
+        return jsonify({"mensaje": "El módulo indicado no existe."}), 404
+
+    banco = Pregunta.query.filter_by(estudio_id=estudio_id, leccion=leccion, pregunta=pregunta).first()
+    if not banco:
+        return jsonify({"mensaje": "La pregunta indicada no existe."}), 404
+
+    correcta = opcion == banco.opcion_correcta
+    if not correcta and opcion not in banco.explicaciones_incorrectas:
+        return jsonify({"mensaje": "Esa opción no existe en esta pregunta."}), 400
+
+    db.session.add(Intento(
+        usuario_id=int(get_jwt_identity()), estudio_id=estudio_id, leccion=leccion,
+        pregunta=pregunta, opcion=opcion, correcta=correcta
+    ))
+    db.session.commit()
+
+    if correcta:
+        return jsonify({"correcta": True, "explicacion": banco.explicacion_correcta}), 201
+    return jsonify({
+        "correcta": False,
+        "explicacion": banco.explicaciones_incorrectas[opcion],
+        "pista": banco.pista
+    }), 201
+
+@app.route('/intentos', methods=['GET'])
+@app.route('/api/intentos', methods=['GET'])
+@jwt_required()
+def obtener_intentos():
+    consulta = Intento.query.filter_by(usuario_id=int(get_jwt_identity()))
+    estudio_id = request.args.get('estudio_id', type=int)
+    if estudio_id is not None:
+        consulta = consulta.filter_by(estudio_id=estudio_id)
+    intentos = consulta.order_by(Intento.id).all()
+    return jsonify([
+        {
+            "id": i.id, "estudio_id": i.estudio_id, "leccion": i.leccion, "pregunta": i.pregunta,
+            "opcion": i.opcion, "correcta": i.correcta, "fecha": i.fecha.isoformat()
+        } for i in intentos
+    ]), 200
 
 @app.route('/perfil', methods=['GET'])
 @app.route('/api/perfil', methods=['GET'])
@@ -188,12 +265,10 @@ def obtener_certificado():
     if not usuario:
         return jsonify({"mensaje": "Usuario no encontrado."}), 404
 
-    # Se compara contra los módulos que existan hoy en la base, no contra un número fijo
     ids_modulos = {e.id for e in Estudio.query.all()}
     if not ids_modulos:
         return jsonify({"mensaje": "Aún no hay módulos disponibles."}), 403
 
-    # Solo cuentan los progresos de módulos que existen
     completados = {
         p.estudio_id for p in Progreso.query.filter_by(usuario_id=usuario.id, completado=True).all()
         if p.estudio_id in ids_modulos
@@ -202,7 +277,6 @@ def obtener_certificado():
     if faltan > 0:
         return jsonify({"mensaje": f"Te faltan {faltan} módulo(s) para obtener el certificado."}), 403
 
-    # usuario.nombre guarda nombre y apellido juntos desde el registro
     return jsonify({
         "nombre": usuario.nombre,
         "fecha_emision": date.today().isoformat()
