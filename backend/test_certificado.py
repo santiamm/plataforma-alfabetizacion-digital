@@ -52,6 +52,7 @@ def test_certificado_sin_modulos_completados(cliente, cabeceras):
 
     assert respuesta.status_code == 403
     assert "2 módulo" in respuesta.get_json()["mensaje"]
+    assert respuesta.get_json()["faltan"] == 2
 
 
 def test_certificado_base_sin_modulos(cliente, cabeceras):
@@ -71,6 +72,7 @@ def test_certificado_incompleto(cliente, cabeceras):
 
     assert respuesta.status_code == 403
     assert "1 módulo" in respuesta.get_json()["mensaje"]
+    assert respuesta.get_json()["faltan"] == 1
 
 
 @pytest.mark.parametrize("ruta", ['/certificado', '/api/certificado'])
@@ -85,3 +87,4 @@ def test_certificado_completo(cliente, cabeceras, ruta):
     datos = respuesta.get_json()
     assert datos["nombre"] == "Jose Perez Gomez"
     assert datos["fecha_emision"] == date.today().isoformat()
+    assert datos["total_modulos"] == 2
