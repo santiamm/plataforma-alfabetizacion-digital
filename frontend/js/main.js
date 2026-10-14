@@ -128,6 +128,42 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarDashboard();
     }
 
+    async function actualizarBannerCertificado() {
+        const banner = document.getElementById('bannerCertificado');
+        if (!banner) return;
+        const titulo = document.getElementById('tituloCertificado');
+        const texto = document.getElementById('textoCertificado');
+        const accion = document.getElementById('accionCertificado');
+        banner.classList.add('d-none');
+
+        try {
+            const respuesta = await fetch(`${API_URL}/certificado`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (respuesta.status === 200) {
+                titulo.textContent = '¡Felicitaciones! Has completado el 100%';
+                texto.textContent = 'Ya puedes reclamar e imprimir tu Certificado de Logro.';
+                texto.classList.remove('d-none');
+                accion.classList.remove('d-none');
+                banner.classList.remove('d-none');
+            } else if (respuesta.status === 403) {
+                const datos = await respuesta.json();
+                const faltan = Number(datos.faltan);
+                if (Number.isInteger(faltan) && faltan > 0) {
+                    titulo.textContent = faltan === 1
+                        ? 'Te falta 1 módulo para obtener tu certificado'
+                        : `Te faltan ${faltan} módulos para obtener tu certificado`;
+                    texto.classList.add('d-none');
+                    accion.classList.add('d-none');
+                    banner.classList.remove('d-none');
+                }
+            }
+        } catch (errBanner) {
+            console.warn('Certificado no disponible:', errBanner);
+        }
+    }
+
     async function cargarDashboard() {
         try {
             const resEstudios = await fetch(`${API_URL}/estudios`);
@@ -166,14 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 barraProgreso.setAttribute('aria-valuenow', porcentaje);
             }
 
-            const bannerCertificado = document.getElementById('bannerCertificado');
-            if (bannerCertificado) {
-                if (porcentaje >= 100) {
-                    bannerCertificado.classList.remove('d-none');
-                } else {
-                    bannerCertificado.classList.add('d-none');
-                }
-            }
+            actualizarBannerCertificado();
+
             const configuracionTarjetas = [
                 { colorBg: 'bg-primary text-white', icono: 'bi-display' },
                 { colorBg: 'bg-success text-white', icono: 'bi-globe2' },
