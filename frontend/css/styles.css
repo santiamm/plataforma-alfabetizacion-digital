@@ -16,6 +16,11 @@ a:focus, button:focus, .btn:focus {
     justify-content: center;
 }
 
+.badge {
+    white-space: normal;
+    text-align: left;
+}
+
 .opcion-btn {
     flex-wrap: wrap;
 }
@@ -26,49 +31,201 @@ a:focus, button:focus, .btn:focus {
     width: 100%;
 }
 
-body.fuente-sm { font-size: 16px; }
-body.fuente-md { font-size: 18px; }
-body.fuente-lg { font-size: 21px; }
-body.fuente-xl { font-size: 24px; }
-
-body.fuente-lg h1 { font-size: 2.5rem !important; }
-body.fuente-lg h2 { font-size: 2.1rem !important; }
-body.fuente-lg h3 { font-size: 1.8rem !important; }
-body.fuente-xl h1 { font-size: 2.9rem !important; }
-body.fuente-xl h2 { font-size: 2.4rem !important; }
-body.fuente-xl h3 { font-size: 2.1rem !important; }
-
-body.alto-contraste {
-    background-color: #000000 !important;
-    color: #ffffff !important;
+@media print {
+    .no-print {
+        display: none !important;
+    }
 }
 
-body.alto-contraste .card,
-body.alto-contraste header,
-body.alto-contraste footer,
-body.alto-contraste .bg-white,
-body.alto-contraste .bg-light {
-    background-color: #121212 !important;
-    color: #ffffff !important;
-    border: 2px solid #ffff00 !important;
-}
+@media screen {
+    html.fuente-sm { font-size: 87.5%; }
+    html.fuente-md { font-size: 100%; }
+    html.fuente-lg { font-size: 114%; }
+    html.fuente-xl { font-size: 130%; }
 
-body.alto-contraste h1,
-body.alto-contraste h2,
-body.alto-contraste h3,
-body.alto-contraste h4,
-body.alto-contraste p,
-body.alto-contraste span,
-body.alto-contraste .text-dark,
-body.alto-contraste .text-secondary,
-body.alto-contraste .text-muted {
-    color: #ffffff !important;
-}
+    html.alto-contraste body {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+    }
 
-body.alto-contraste .btn-primary,
-body.alto-contraste .btn-outline-primary {
-    background-color: #ffff00 !important;
-    color: #000000 !important;
-    font-weight: 800 !important;
-    border: 3px solid #ffffff !important;
+    html.alto-contraste .card,
+    html.alto-contraste header,
+    html.alto-contraste footer,
+    html.alto-contraste .bg-white,
+    html.alto-contraste .bg-light {
+        background-color: #121212 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffff00 !important;
+    }
+
+    html.alto-contraste h1,
+    html.alto-contraste h2,
+    html.alto-contraste h3,
+    html.alto-contraste h4,
+    html.alto-contraste p,
+    html.alto-contraste span,
+    html.alto-contraste label,
+    html.alto-contraste li,
+    html.alto-contraste small,
+    html.alto-contraste .text-dark,
+    html.alto-contraste .text-secondary,
+    html.alto-contraste .text-muted,
+    html.alto-contraste .text-white {
+        color: #ffffff !important;
+    }
+
+    html.alto-contraste .text-primary,
+    html.alto-contraste .text-warning {
+        color: #ffff00 !important;
+    }
+
+    html.alto-contraste .text-success {
+        color: #00ff66 !important;
+    }
+
+    html.alto-contraste .text-danger {
+        color: #ff8a8a !important;
+    }
+
+    html.alto-contraste .bg-warning,
+    html.alto-contraste .bg-info {
+        color: #000000 !important;
+    }
+
+    html.alto-contraste a:not(.btn) {
+        color: #ffff00 !important;
+        text-decoration: underline !important;
+    }
+
+    html.alto-contraste .btn-primary,
+    html.alto-contraste .btn-outline-primary {
+        background-color: #ffff00 !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 3px solid #ffffff !important;
+    }
+
+    html.alto-contraste .btn-success {
+        background-color: #00ff66 !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 3px solid #ffffff !important;
+    }
+
+    html.alto-contraste .btn-danger {
+        background-color: #ff8a8a !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 3px solid #ffffff !important;
+    }
+
+    html.alto-contraste .btn-warning {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 3px solid #ffff00 !important;
+    }
+
+    html.alto-contraste .btn-secondary,
+    html.alto-contraste .btn-outline-secondary,
+    html.alto-contraste .btn-outline-dark {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border: 3px solid #ffffff !important;
+    }
+
+    html.alto-contraste .btn-outline-success {
+        background-color: #000000 !important;
+        color: #00ff66 !important;
+        border: 3px solid #00ff66 !important;
+    }
+
+    html.alto-contraste .btn-outline-danger {
+        background-color: #000000 !important;
+        color: #ff8a8a !important;
+        border: 3px solid #ff8a8a !important;
+    }
+
+    html.alto-contraste .badge {
+        background-color: #ffff00 !important;
+        color: #000000 !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    html.alto-contraste .alert,
+    html.alto-contraste [class*="-subtle"] {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 3px solid #ffff00 !important;
+    }
+
+    html.alto-contraste [class*="-emphasis"] {
+        color: #ffffff !important;
+    }
+
+    html.alto-contraste .form-control,
+    html.alto-contraste .form-select {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    html.alto-contraste .form-control:focus,
+    html.alto-contraste .form-select:focus {
+        border-color: #ffff00 !important;
+    }
+
+    html.alto-contraste .form-control::placeholder {
+        color: #d0d0d0 !important;
+    }
+
+    html.alto-contraste .is-invalid {
+        border-color: #ff8a8a !important;
+    }
+
+    html.alto-contraste .progress {
+        background-color: #333333 !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    html.alto-contraste .progress-bar {
+        background-color: #ffff00 !important;
+        color: #000000 !important;
+    }
+
+    html.alto-contraste .diploma-container {
+        color: #212529 !important;
+    }
+
+    html.alto-contraste .diploma-container h1,
+    html.alto-contraste .diploma-container h2,
+    html.alto-contraste .diploma-container p,
+    html.alto-contraste .diploma-container span,
+    html.alto-contraste .diploma-container .text-dark {
+        color: #212529 !important;
+    }
+
+    html.alto-contraste .diploma-container .text-primary {
+        color: #0d6efd !important;
+    }
+
+    html.alto-contraste .diploma-container .text-secondary,
+    html.alto-contraste .diploma-container .text-muted {
+        color: #6c757d !important;
+    }
+
+    html.alto-contraste .diploma-container .text-white {
+        color: #ffffff !important;
+    }
+
+    html.alto-contraste .diploma-container .text-warning {
+        color: #ffc107 !important;
+    }
+
+    html.alto-contraste .diploma-container .badge {
+        background-color: #cfe2ff !important;
+        color: #0d6efd !important;
+        border: 1px solid #0d6efd !important;
+    }
 }

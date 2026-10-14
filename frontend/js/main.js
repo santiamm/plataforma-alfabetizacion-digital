@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = 'http://127.0.0.1:5000';
     const API_URL = API_BASE;
+
+    function limpiarSesion() {
+        ['token', 'usuario_nombre', 'usuario_id'].forEach(clave => localStorage.removeItem(clave));
+    }
+
     function setupPasswordToggle(btnId, inputId, iconId) {
         const btn = document.getElementById(btnId);
         const input = document.getElementById(inputId);
@@ -181,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         completadosIds = [...new Set(progresos.map(p => p.estudio_id))];
                     }
                 } else if (resProgreso.status === 401) {
-                    localStorage.clear();
+                    limpiarSesion();
                     window.location.href = 'login.html';
                     return;
                 }
@@ -262,44 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSalir) {
         btnSalir.addEventListener('click', (e) => {
             e.preventDefault();
-            localStorage.clear();
+            limpiarSesion();
             window.location.href = 'login.html';
         });
-    }
-
-
-    const btnAumentar = document.getElementById('btnAumentarTexto');
-    const btnDisminuir = document.getElementById('btnDisminuirTexto');
-    const contenedorTexto = document.getElementById('contenidoLeccion');
-
-    if (btnAumentar && btnDisminuir && contenedorTexto) {
-        let nivelZoom = 1.0;
-
-        btnAumentar.addEventListener('click', () => {
-            if (nivelZoom < 1.35) {
-                nivelZoom += 0.1;
-                aplicarEscalaTexto();
-            }
-        });
-
-        btnDisminuir.addEventListener('click', () => {
-            if (nivelZoom > 0.9) {
-                nivelZoom -= 0.1;
-                aplicarEscalaTexto();
-            }
-        });
-
-        function aplicarEscalaTexto() {
-            const elementosTexto = contenedorTexto.querySelectorAll('h1, h2, h3, h4, p, li, strong, span');
-            elementosTexto.forEach(el => {
-                if (!el.dataset.baseSize) {
-                    const estilo = window.getComputedStyle(el);
-                    el.dataset.baseSize = parseFloat(estilo.fontSize);
-                }
-                const tamanoOriginal = parseFloat(el.dataset.baseSize);
-                el.style.fontSize = `${tamanoOriginal * nivelZoom}px`;
-            });
-        }
     }
 
 
