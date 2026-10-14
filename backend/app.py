@@ -275,11 +275,15 @@ def obtener_certificado():
     }
     faltan = len(ids_modulos) - len(completados)
     if faltan > 0:
-        return jsonify({"mensaje": f"Te faltan {faltan} módulo(s) para obtener el certificado."}), 403
+        return jsonify({
+            "mensaje": f"Te faltan {faltan} módulo(s) para obtener el certificado.",
+            "faltan": faltan
+        }), 403
 
     return jsonify({
         "nombre": usuario.nombre,
-        "fecha_emision": date.today().isoformat()
+        "fecha_emision": date.today().isoformat(),
+        "total_modulos": len(ids_modulos)
     }), 200
 
 if __name__ == '__main__':
